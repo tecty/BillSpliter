@@ -47,16 +47,17 @@ class Bill(TimestampModel):
         # maping of the state from transaction
         s = {
             PREPARE: PREPARE,
-            APPROVED: APPROVED,
+            APPROVED: PREPARE,
             REJECTED: SUSPEND,
             CONCENCUS: CONCENCUS,
             COMMITED: COMMITED,
             FINISH: FINISH,
             SUSPEND: SUSPEND,
+            None: SUSPEND
         }
         # get random one of tr
         # and return its mapping
-        return s[self.transaction_set.get().state]
+        return s[self.transaction_set.first().state]
 
     def tr_state_update(self, request_uesr, to_state):
         """
@@ -64,13 +65,14 @@ class Bill(TimestampModel):
         @to_state: which state is this request is make to 
         """
         # filter out the transaction set might need to update
-        trs = self.transaction_set.exclude(from_u=request_uesr)
+        trs = self.transaction_set.all()
 
         if to_state == APPROVED:
-            if trs.count() == trs.filter(state=APPROVED).count():
+            if trs.exclude(from_u=request_uesr).count() == \
+                    trs.exclude(from_u=request_uesr)\
+                    .filter(state=APPROVED).count():
                 # all transations are approved
                 # push to next stage for all the transactions
-                trs = self.transaction_set.all()
                 for tr in trs:
                     tr.state = CONCENCUS
                     tr.save()
@@ -79,7 +81,7 @@ class Bill(TimestampModel):
                 return
         elif to_state == REJECTED:
             # push all the bill to suspend state
-            for tr in trs:
+            for tr in trs.exclude(from_u=request_uesr):
                 tr.sate = SUSPEND
                 tr.save()
 
@@ -91,6 +93,15 @@ class Bill(TimestampModel):
     def reject(self, request_uesr):
         if self.transaction_set.get(from_u=request_uesr).reject():
             self.tr_state_update(request_uesr, REJECTED)
+
+    def resume(self, request_user):
+        if request_user == self.owner:
+            for tr in self.transaction_set.all():
+                tr.resume()
+                if tr.from_u == request_user:
+                    tr.approve()
+            return True
+        return False
 
 
 class Transaction(TimestampModel):
@@ -140,6 +151,13 @@ class Transaction(TimestampModel):
         # push this transaction to reject state
         if self.state == PREPARE:
             self.state = REJECTED
+            self.save()
+            return True
+        return False
+
+    def resume(self):
+        if self.state in [REJECTED, SUSPEND]:
+            self.state = PREPARE
             self.save()
             return True
         return False

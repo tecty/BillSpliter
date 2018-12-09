@@ -56,3 +56,57 @@ class BillCase(TestCase):
 
         # this state must be concencus
         self.assertEqual(CONCENCUS, bill.state)
+
+    def test_bill_reject(self):
+        bill = Bill.objects.create(
+            title="dinner",
+            description="nothing",
+            owner=self.user001,
+            group=self.group
+        )
+        tr = bill.transaction_set.create(
+            from_u=self.user002,
+            to_u=self.user001,
+            amount=1.0
+        )
+        # this state must be prepare
+        self.assertEqual(PREPARE, bill.state)
+        bill.reject(self.user002)
+        self.assertEqual(SUSPEND, bill.state)
+
+    def test_reject_multiple_user(self):
+        bill = Bill.objects.create(
+            title="dinner",
+            description="nothing",
+            owner=self.user001,
+            group=self.group
+        )
+        tr1 = bill.transaction_set.create(
+            from_u=self.user002,
+            to_u=self.user001,
+            amount=1.0
+        )
+        tr2 = bill.transaction_set.create(
+            from_u=self.user001,
+            to_u=self.user001,
+            amount=1.0
+        )
+        bill.approve(self.user001)
+        # this state must be prepare
+        self.assertEqual(PREPARE, bill.state)
+        bill.reject(self.user002)
+        self.assertEqual(SUSPEND, bill.state)
+
+        # all should be suspend
+        self.assertEqual(
+            SUSPEND,
+            bill.transaction_set.get(
+                from_u=self.user001
+            ).state
+        )
+        self.assertEqual(
+            REJECTED,
+            bill.transaction_set.get(
+                from_u=self.user002
+            ).state
+        )
