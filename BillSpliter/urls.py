@@ -18,7 +18,9 @@ from django.urls import path
 from django.conf.urls import include, url
 from rest_framework import routers
 # bill views
-from Bills.views import UserViewSet, TransactionViewSet, BillViewSet
+from Bills.views import UserViewSet,\
+    TransactionViewSet, BillViewSet,\
+    GroupViewSet
 # urls
 from rest_framework_jwt.views import obtain_jwt_token
 
@@ -26,6 +28,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 # main router
 router = routers.DefaultRouter()
 router.register('users', UserViewSet)
+router.register('groups', GroupViewSet)
 router.register('trans', TransactionViewSet)
 router.register('bills', BillViewSet)
 
