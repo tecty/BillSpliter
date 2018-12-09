@@ -105,6 +105,25 @@ class Bill(TimestampModel):
             return True
         return False
 
+    def commit(self):
+        """
+        Non 'public' method, it's called by Settlement class 
+        """
+        if self.state == CONCENCUS:
+            for tr in self.transaction_set.all():
+                # update all it's transaction to commit
+                tr.commit()
+            return True
+        return False
+
+    def revoke(self):
+        if self.state == COMMITED:
+            for tr in self.transaction_set.all():
+                # update all it's transaction to CONCENCUS
+                tr.revoke()
+            return True
+        return False
+
 
 class Transaction(TimestampModel):
     # we can assume every transaction has a bill
@@ -163,3 +182,17 @@ class Transaction(TimestampModel):
             self.save()
             return True
         return False
+
+    def commit(self):
+        """
+        @pre self.state == CONCENCUS
+        """
+        self.state = COMMITED
+        self.save()
+
+    def revoke(self):
+        """
+        @pre self.state == COMMITED
+        """
+        self.state = CONCENCUS
+        self.save()
