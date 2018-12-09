@@ -56,7 +56,7 @@ class Bill(TimestampModel):
         }
         # get random one of tr
         # and return its mapping
-        return s[self.transaction_set.get().sate]
+        return s[self.transaction_set.get().state]
 
     def tr_state_update(self, request_uesr, to_state):
         """
@@ -64,10 +64,10 @@ class Bill(TimestampModel):
         @to_state: which state is this request is make to 
         """
         # filter out the transaction set might need to update
-        trs = self.transaction_set.filter(from_u_ne=request_uesr)
+        trs = self.transaction_set.exclude(from_u=request_uesr)
 
         if to_state == APPROVED:
-            if trs.count == trs.filter(state_eq=APPROVED).count():
+            if trs.count() == trs.filter(state=APPROVED).count():
                 # all transations are approved
                 # push to next stage for all the transactions
                 trs = self.transaction_set.all()
@@ -129,6 +129,7 @@ class Transaction(TimestampModel):
         if self.state == PREPARE:
             # only the prepare state can go be approved
             self.state = APPROVED
+            self.save()
             return True
         return False
 
@@ -139,5 +140,6 @@ class Transaction(TimestampModel):
         # push this transaction to reject state
         if self.state == PREPARE:
             self.state = REJECTED
+            self.save()
             return True
         return False

@@ -36,3 +36,23 @@ class BillCase(TestCase):
         self.assertEquals(bill.description, "nothing")
         self.assertEquals(bill.owner, self.user001)
         self.assertEquals(bill.group, self.group)
+
+    def test_create_bill_and_self_paid(self):
+        bill = Bill.objects.create(
+            title="dinner",
+            description="nothing",
+            owner=self.user001,
+            group=self.group
+        )
+        tr = bill.transaction_set.create(
+            from_u=self.user001,
+            to_u=self.user001,
+            amount=1.0
+        )
+        # this state must be prepare
+        self.assertEqual(PREPARE, bill.state)
+
+        bill.approve(self.user001)
+
+        # this state must be concencus
+        self.assertEqual(CONCENCUS, bill.state)

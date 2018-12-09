@@ -59,7 +59,7 @@ class BillViewSet(viewsets.ModelViewSet):
         # try to approve a created bill
         # hence the request user nolonger need to approve
         # self transactions
-        # bill.approve()
+        bill.approve()
 
         # wrap the transactions correctly and create success
         bill_s = BillSerializer(bill)
