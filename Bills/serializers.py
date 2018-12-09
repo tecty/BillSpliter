@@ -3,6 +3,18 @@ from django.contrib.auth.models import User, Group
 from .models import Transaction, Bill
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        source='user_set', many=True, read_only=True)
+
+    class Meta:
+        model = Group
+        fields = (
+            "id",
+            "user"
+        )
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
