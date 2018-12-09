@@ -1,7 +1,7 @@
 """BillSpliter URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.0/topics/http/urls/
+    https://docs.djangoproject.com/en/2.1/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -15,7 +15,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include, url
+from rest_framework import routers
+# bill views
+from Bills.views import UserViewSet, TransactionViewSet, BillViewSet
+# urls
+from rest_framework_jwt.views import obtain_jwt_token
+
+
+# main router
+router = routers.DefaultRouter()
+router.register('users', UserViewSet)
+router.register('trans', TransactionViewSet)
+router.register('bills', BillViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^v1/jwt/', obtain_jwt_token),
+
+    url(r'^v1/', include(router.urls))
 ]
