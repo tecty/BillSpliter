@@ -19,8 +19,8 @@ from django.conf.urls import include, url
 from rest_framework import routers
 # bill views
 from Bills.views import UserViewSet,\
-    TransactionViewSet, BillViewSet,\
-    GroupViewSet
+    TransactionViewSet, BillViewSet
+from BillGroups.views import GroupViewSet
 # urls
 from rest_framework_jwt.views import obtain_jwt_token
 

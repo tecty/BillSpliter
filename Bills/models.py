@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models import CharField, DateTimeField,\
     ForeignKey, DecimalField
-from django.contrib.auth.models import User, Group
-
+from django.contrib.auth.models import User
+from BillGroups.models import BillGroups
 
 """
 Three-phase-commit 
@@ -40,7 +40,7 @@ class Bill(TimestampModel):
     description = CharField(max_length=2048, blank=True)
     # creator of this bill
     owner = ForeignKey(User, on_delete=models.PROTECT)
-    group = ForeignKey(Group, on_delete=models.PROTECT)
+    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
 
     @property
     def state(self):

@@ -9,10 +9,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = (AllowAny,)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
