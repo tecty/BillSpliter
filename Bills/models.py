@@ -82,7 +82,7 @@ class Bill(TimestampModel):
         elif to_state == REJECTED:
             # push all the bill to suspend state
             for tr in trs.exclude(from_u=request_uesr):
-                tr.sate = SUSPEND
+                tr.state = SUSPEND
                 tr.save()
 
     def approve(self, request_uesr):
@@ -91,7 +91,9 @@ class Bill(TimestampModel):
             self.tr_state_update(request_uesr, APPROVED)
 
     def reject(self, request_uesr):
-        if self.transaction_set.get(from_u=request_uesr).reject():
+        if self.transaction_set.get(
+                from_u=request_uesr
+        ).reject():
             self.tr_state_update(request_uesr, REJECTED)
 
     def resume(self, request_user):
