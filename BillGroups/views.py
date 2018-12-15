@@ -14,4 +14,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         # add a owner
         request.data.pop('owner', None)
         request.data['owner'] = request.user
-        return GroupSerializer().create(request.data)
+        group = GroupSerializer().create(request.data)
+        group.addUser(request.user)
+        return group

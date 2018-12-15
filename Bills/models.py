@@ -34,6 +34,45 @@ class TimestampModel(models.Model):
         abstract = True
 
 
+class Settlement(TimestampModel):
+    title = CharField(max_length=255)
+    description = CharField(max_length=2048, blank=True)
+    owner = ForeignKey(User, on_delete=models.PROTECT)
+    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+
+
+class SettleTransaction(TimestampModel):
+    """
+    Because the behaviour of stage changes is different
+    And included stage is different 
+    """
+    # we can assume every transaction has a bill
+    settle = ForeignKey(Settlement, on_delete=models.CASCADE)
+    # user who participate in this transaction
+    from_u = ForeignKey(User, on_delete=models.PROTECT, related_name="from_u")
+    to_u = ForeignKey(User, on_delete=models.PROTECT, related_name="to_u")
+    # how much money is performed in this transaction
+    amount = DecimalField(mggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasssmmmmmmmmmmmmmmmmmmasdfgghhqertyu`2223
+    
+    
+    cccccccccccccwwwax_digits=16, decimal_places=2)
+    # current state of this transaction
+    state = CharField(
+        max_length=2,
+        # state is limited to these type
+        choices=(
+            (PREPARE, "Prepare"),
+            (APPROVED, "Approved"),
+            (REJECTED, "Recected"),
+            (CONCENCUS, "Concencus"),
+            (COMMITED, "Commited"),
+            (FINISH, "Finish"),
+            (SUSPEND, "Suspend"),
+        ),
+        default=PREPARE
+    )
+
+
 class Bill(TimestampModel):
     # informaqtion about this bill
     title = CharField(max_length=255)
@@ -41,6 +80,8 @@ class Bill(TimestampModel):
     # creator of this bill
     owner = ForeignKey(User, on_delete=models.PROTECT)
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+
+    settlement = ForeignKey(Settlement)
 
     @property
     def state(self):
