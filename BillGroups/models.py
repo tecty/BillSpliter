@@ -11,3 +11,8 @@ class BillGroups(Group):
 
     def delUser(self, user):
         self.user_set.remove(user)
+
+    @classmethod
+    # filter out the instance of user's bill groups
+    def get_bill_group(cls, user):
+        return cls.objects.filter(user=user)

@@ -45,7 +45,7 @@ class StatefulTransactionModel(models.Model):
     """
     This related name will be name by class, more about this at:
     https://docs.djangoproject.com/en/1.7/topics/db/models/#abstract-related-name
-    So, if I want to get this value, I need to use 
+    So, if I want to get this value, I need to use
     st.SettlementTransaction_from_user
     """
     from_u = ForeignKey(User, on_delete=models.PROTECT,
@@ -75,6 +75,23 @@ class Settlement(TimestampModel):
     description = CharField(max_length=2048, blank=True)
     owner = ForeignKey(User, on_delete=models.PROTECT)
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+
+    @property
+    def state(self):
+        # maping of the state from transaction
+        s = {
+            PREPARE: PREPARE,
+            APPROVED: PREPARE,
+            REJECTED: SUSPEND,
+            CONCENCUS: CONCENCUS,
+            COMMITED: COMMITED,
+            FINISH: FINISH,
+            SUSPEND: SUSPEND,
+            None: SUSPEND
+        }
+        # get random one of tr
+        # and return its mapping
+        return s[self.settle_transaction_set.first().state]
 
 
 class SettleTransaction(StatefulTransactionModel):
