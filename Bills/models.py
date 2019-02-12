@@ -1,7 +1,8 @@
 from django.db import models
 from django.db.models import CharField, DateTimeField,\
     ForeignKey, DecimalField, PositiveIntegerField, \
-    Sum
+    Sum, Value
+from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from BillGroups.models import BillGroups
 from django.dispatch import receiver
@@ -88,7 +89,9 @@ class Settlement(TimestampModel):
     owner = ForeignKey(User, on_delete=models.PROTECT)
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
     # counter of unfinished integer
-    wait_count = PositiveIntegerField()
+    # first save will not trigger s_tr creation
+    # after it calculate how many bills it should wait
+    wait_count = PositiveIntegerField(default=1)
 
     @property
     def state(self):
@@ -105,7 +108,7 @@ class Settlement(TimestampModel):
         }
         # get random one of tr
         # and return its mapping
-        return s[self.settle_transaction_set.first().state]
+        return s[self.settletransaction_set.first().state]
 
 
 class SettleTransaction(StatefulTransactionModel):
@@ -281,8 +284,13 @@ class Transaction(StatefulTransactionModel):
     @classmethod
     def get_balance(cls, user):
         # calculate the given user's balance
-        return cls.objects.filter(to_u=user).aggregate(Sum('amount'))['amount__sum']\
-            - cls.objects.filter(from_u=user).aggregate(Sum('amount'))['amount__sum']
+        # Coalesce is to provide a 0 when the none type is occour
+        return cls.objects.filter(to_u=user).aggregate(
+            asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']\
+            - cls.objects.filter(from_u=user).aggregate(
+            asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']
 
 
 @receiver(post_save, sender=Settlement)
@@ -294,16 +302,38 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
     if created:
         # set up the lock counter
         instance.wait_count = Bill.objects.filter(
-            group=instance.group,
-            transaction__state_ne=FINISH
+            group=instance.group
+        ).exclude(
+            transaction__state=FINISH
+        ).exclude(
+            transaction__state=CONCENCUS
         ).distinct().count()
         instance.save()
 
     # we gain the lock to start s_tr
-    if instance.wait_count == 0:
+    if instance.wait_count == 0 and instance.settletransaction_set.count() == 0:
         # user list for this group
-        ul = instance.group.user_set.all()
+        # there's no need for owner transfer money to owner
+        ul = instance.group.user_set.all().exclude(
+            pk=instance.group.owner.id)
         for u in ul:
+            assert(ul.count() == 3)
+            # amount of this tr
             amount = Transaction.get_balance(u)
-            instance.settle_transaction_set.create(
-            )
+
+            """
+            base on the balance to decide the transfer direction
+            """
+            if amount < 0:
+                instance.settletransaction_set.create(
+                    from_u=u,
+                    to_u=instance.group.owner,
+                    amount=-amount
+                )
+                continue
+            if amount > 0:
+                instance.settletransaction_set.create(
+                    to_u=u,
+                    from_u=instance.group.owner,
+                    amount=-amount
+                )

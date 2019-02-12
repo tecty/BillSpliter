@@ -249,6 +249,10 @@ class SettleCase(TestCase):
 
         # dummy billing groups
         self.group = BillGroups.objects.create(name="test", owner=self.user001)
+        self.group.addUser(self.user001)
+        self.group.addUser(self.user002)
+        self.group.addUser(self.user003)
+        self.group.addUser(self.user004)
         self.user001.groups.add(self.group)
 
         # ul for user_list
@@ -291,3 +295,23 @@ class SettleCase(TestCase):
         """
 
         self.assertEqual(Transaction.get_balance(self.ul[0]), 45)
+        self.assertEqual(Transaction.get_balance(self.ul[1]), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[2]), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[3]), -15)
+
+    def test_s_tr_creation(self):
+        """
+        Test all the settle transaction is setted up correctly
+        """
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+        self.assertEqual(s.wait_count, 0)
+
+        # s_tr will be setted
+        self.assertEqual(s.settletransaction_set.all().count(), 3)
+
+        # self.assertEqual(s.settletransaction_set.get(id=1).amount, 15)
+        # self.assertEqual(s.settletransaction_set.get(id=1).amount, 15)
