@@ -15,7 +15,8 @@ class BillCase(TestCase):
         self.user004 = User.objects.create_user(
             'u004', "u004@example.cn", "tt")
 
-        self.group = Group.objects.create(name="test")
+        # dummy billing groups
+        self.group = BillGroups.objects.create(name="test", owner=self.user001)
         self.user001.groups.add(self.group)
 
         self.user_list = [

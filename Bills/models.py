@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from BillGroups.models import BillGroups
 
 """
-Three-phase-commit 
+Three-phase-commit
 https://en.wikipedia.org/wiki/Three-phase_commit_protocol
 Prepare -> Approved -(all)-> Concencus -(settle)-> Committed-> Finished
 ↑                   -(rejected)-> Suspend -> (deleted)
@@ -23,8 +23,8 @@ SUSPEND = 'SP'
 
 class TimestampModel(models.Model):
     """
-    Abstract model which will record timestamp 
-    while doing operation 
+    Abstract model which will record timestamp
+    while doing operation
     """
     # timestamp for modify and creation
     created = DateTimeField(auto_now_add=True)
@@ -34,17 +34,24 @@ class TimestampModel(models.Model):
         abstract = True
 
 
-class StatefulTransactionModel(TimestampModel):
+class StatefulTransactionModel(models.Model):
     """
     all those model will share these five stages
-    Prepare, Approve, Concencus, Finished  
+    Prepare, Approve, Concencus, Finished
              Reject,  Suspend
     """
-    # user who participate in this transaction
+    class Meta:
+        abstract = True
+    """
+    This related name will be name by class, more about this at:
+    https://docs.djangoproject.com/en/1.7/topics/db/models/#abstract-related-name
+    So, if I want to get this value, I need to use 
+    st.SettlementTransaction_from_user
+    """
     from_u = ForeignKey(User, on_delete=models.PROTECT,
-                        related_name="from_user")
-    to_u = ForeignKey(
-        User, on_delete=models.PROTECT, related_name="to_user")
+                        related_name="%(class)s_from_user")
+    to_u = ForeignKey(User, on_delete=models.PROTECT,
+                      related_name="%(class)s_to_user")
     # how much money is performed in this transaction
     amount = DecimalField(max_digits=16, decimal_places=2)
     # current state of this transaction
@@ -62,9 +69,6 @@ class StatefulTransactionModel(TimestampModel):
         default=PREPARE
     )
 
-    class Meta:
-        abstract = True
-
 
 class Settlement(TimestampModel):
     title = CharField(max_length=255)
@@ -78,7 +82,6 @@ class SettleTransaction(StatefulTransactionModel):
     Because the behaviour of stage changes is different
     And included stage is different 
     """
-    # we can assume every transaction has a bill
     settle = ForeignKey(Settlement, on_delete=models.CASCADE)
 
 
@@ -90,8 +93,14 @@ class Bill(TimestampModel):
     owner = ForeignKey(User, on_delete=models.PROTECT)
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
 
+    """
+    Settlement will be attach to a bill 
+    Nullable foreign key will require both nullable and blankable 
+    https://stackoverflow.com/questions/16589069/foreignkey-does-not-allow-null-values
+    Blankable is for validator, nullable is for database creation 
+    """
     settlement = ForeignKey(
-        Settlement, on_delete=models.PROTECT, blank=True)
+        Settlement, on_delete=models.PROTECT, null=True, blank=True)
 
     @property
     def state(self):
@@ -177,6 +186,10 @@ class Bill(TimestampModel):
 
 
 class Transaction(StatefulTransactionModel):
+    # user who participate in this transaction
+
+    # to_u = ForeignKey(
+    #     User, on_delete=models.PROTECT, related_name="to_user")
     # we can assume every transaction has a bill
     bill = ForeignKey(Bill, on_delete=models.CASCADE)
 
