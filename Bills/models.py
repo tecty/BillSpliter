@@ -1,8 +1,11 @@
 from django.db import models
 from django.db.models import CharField, DateTimeField,\
-    ForeignKey, DecimalField
+    ForeignKey, DecimalField, PositiveIntegerField, \
+    Sum
 from django.contrib.auth.models import User
 from BillGroups.models import BillGroups
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 """
 Three-phase-commit
@@ -71,10 +74,21 @@ class StatefulTransactionModel(models.Model):
 
 
 class Settlement(TimestampModel):
+    """
+
+    Settle transaction is created when the settlement class gain the lock 
+    The lock is provided by wait_count, when wait_count count the waiting bill
+    is become 0, this settlement gain the lock. 
+
+    Then it will call the method at the end of this file, to creat all the settle 
+    transactions.
+    """
     title = CharField(max_length=255)
     description = CharField(max_length=2048, blank=True)
     owner = ForeignKey(User, on_delete=models.PROTECT)
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+    # counter of unfinished integer
+    wait_count = PositiveIntegerField()
 
     @property
     def state(self):
@@ -153,6 +167,12 @@ class Bill(TimestampModel):
                 for tr in trs:
                     tr.state = CONCENCUS
                     tr.save()
+
+                # decrease the lock of settlement
+                # if there's any
+                if self.settlement != None:
+                    self.settlement.wait_count -= 1
+                    self.settlement.save()
             else:
                 # need more waiting
                 return
@@ -257,3 +277,33 @@ class Transaction(StatefulTransactionModel):
         """
         self.state = CONCENCUS
         self.save()
+
+    @classmethod
+    def get_balance(cls, user):
+        # calculate the given user's balance
+        return cls.objects.filter(to_u=user).aggregate(Sum('amount'))['amount__sum']\
+            - cls.objects.filter(from_u=user).aggregate(Sum('amount'))['amount__sum']
+
+
+@receiver(post_save, sender=Settlement)
+def attach_settle_transactions(sender, instance, created, *args, **kwargs):
+    """
+    Use post save signal to setup a lock,
+    s_tr will be setted until the lock is 0
+    """
+    if created:
+        # set up the lock counter
+        instance.wait_count = Bill.objects.filter(
+            group=instance.group,
+            transaction__state_ne=FINISH
+        ).distinct().count()
+        instance.save()
+
+    # we gain the lock to start s_tr
+    if instance.wait_count == 0:
+        # user list for this group
+        ul = instance.group.user_set.all()
+        for u in ul:
+            amount = Transaction.get_balance(u)
+            instance.settle_transaction_set.create(
+            )

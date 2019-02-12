@@ -9,6 +9,8 @@ from Bills.models import *
 #           ul[i].group == ul[j].group
 # @post: forall i,j in bill.tr.length =>
 #           bill.tr[i].amount == bill.tr[j].amount
+# @post: forall bill => bill.state == concencus
+# @post: forall tr => tr.state == concencus
 def create_bill(ul, total):
     bill = Bill.objects.create(
         title="dinner",
@@ -22,6 +24,7 @@ def create_bill(ul, total):
         bill.transaction_set.create(
             from_u=u,
             to_u=ul[0],
+            state=CONCENCUS,
             amount=total/len(ul)
         )
 
@@ -257,3 +260,34 @@ class SettleCase(TestCase):
         ]
 
         # creating a lot of finished tr
+
+        create_bill(self.ul, 10)
+        create_bill(self.ul, 20)
+        create_bill(self.ul, 30)
+
+    def test_null_create(self):
+        # test whether all the environment is created
+        self.assertEqual(
+            Bill.objects.filter(owner=self.ul[0]).count(), 3
+        )
+        # all the default bill is share as 2.5, 5, and 7.5
+        self.assertEqual(
+            Bill.objects.get(pk=1).transaction_set.first().amount,
+            2.5
+        )
+        self.assertEqual(
+            Bill.objects.get(pk=2).transaction_set.first().amount,
+            5
+        )
+        self.assertEqual(
+            Bill.objects.get(pk=3).transaction_set.first().amount,
+            7.5
+        )
+
+    def test_calculate_balance(self):
+        """
+        This method is not belong to here. but I don't wanna write another
+        settup function
+        """
+
+        self.assertEqual(Transaction.get_balance(self.ul[0]), 45)

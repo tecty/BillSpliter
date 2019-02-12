@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -44,8 +43,9 @@ class BillViewSet(viewsets.ModelViewSet):
             for tr in trs:
                 # filling the missing information
                 tr['bill'] = bill
-                tr['to_u'] = request.user
-                tr['from_u'] = User.objects.get(pk=tr['from_u'])
+                tr['bill_transaction_to_user'] = request.user
+                tr['bill_transaction_from_user'] = User.objects.get(
+                    pk=tr['from_u'])
                 tr = TransactionSerializer().create(tr)
                 # wrap the transaction creation
                 bill.transaction_set.add(tr)
