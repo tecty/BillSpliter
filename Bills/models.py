@@ -320,10 +320,14 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
         ).exclude(
             transaction__state=COMMITED
         ).distinct()
-        instance.wait_count = pending_bill.count()
-        instance.save()
-
+        # these are the bill need to attach to this settlemnt
         pending_bill.update(settlement=instance)
+
+        # remove the concencus bill, these bill we don't need to wait
+        instance.wait_count = pending_bill.exclude(
+            transaction__state=CONCENCUS
+        ).count()
+        instance.save()
 
         # Commit all the concencus tr
         Transaction.objects.filter(
