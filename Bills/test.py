@@ -269,6 +269,13 @@ class SettleCase(TestCase):
         create_bill(self.ul, 20)
         create_bill(self.ul, 30)
 
+    def create_settlement(self):
+        return Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
     def test_null_create(self):
         # test whether all the environment is created
         self.assertEqual(
@@ -303,11 +310,7 @@ class SettleCase(TestCase):
         """
         Test all the settle transaction is setted up correctly
         """
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
         self.assertEqual(s.wait_count, 0)
 
         # s_tr will be setted
@@ -325,11 +328,7 @@ class SettleCase(TestCase):
         """
         create_bill(self.ul, 10)
 
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
 
         self.assertEqual(s.wait_count, 0)
 
@@ -341,11 +340,7 @@ class SettleCase(TestCase):
         self.assertEqual(s.settletransaction_set.get(id=3).amount, 17.5)
 
     def test_s_tr_approve_by_from_user(self):
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
 
         s_tr = s.settletransaction_set.get(id=1)
 
@@ -355,11 +350,7 @@ class SettleCase(TestCase):
         self.assertEqual(s.state, PREPARE)
 
     def test_s_tr_success_payment(self):
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
 
         s_tr = s.settletransaction_set.get(id=1)
 
@@ -376,11 +367,7 @@ class SettleCase(TestCase):
         No only need to test all the s_tr is finished, 
         but also all the bill state is swith to finsh
         """
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
 
         for s_tr in s.settletransaction_set.all():
 
@@ -388,16 +375,12 @@ class SettleCase(TestCase):
             s_tr.approve(s_tr.from_u)
             s_tr.approve(s_tr.to_u)
 
-        self.asertEqual(s.state, FINISH)
-        self.asertEqual(s.bill_set.first().state, FINISH)
+        self.assertEqual(s.state, FINISH)
+        self.assertEqual(s.bill_set.first().state, FINISH)
 
     def test_s_tr_reject(self):
 
-        s = Settlement.objects.create(
-            title="Feb,2019",
-            owner=self.ul[0],
-            group=self.group
-        )
+        s = self.create_settlement()
 
         s_tr = s.settletransaction_set.get(id=1)
 
@@ -406,3 +389,12 @@ class SettleCase(TestCase):
         s_tr.reject(s_tr.to_u)
 
         self.assertEqual(s_tr.state, PREPARE)
+
+    def test_bill_tr_commit(self):
+        s = self.create_settlement()
+        self.assertEqual(Transaction.objects.first().state, COMMITED)
+
+    def test_settlment_is_attached_to_bill(self):
+        s = self.create_settlement()
+
+        self.assertEqual(Bill.objects.first().settlement, s)

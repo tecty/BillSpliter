@@ -300,7 +300,8 @@ class Settlement(TimestampModel):
             self.settletransaction_set.filter(
                 state=CONCENCUS).update(state=FINISH)
             Transaction.objects.filter(
-                state=COMMITED
+                state=COMMITED,
+                bill__settlement__id=self.id
             ).update(state=FINISH)
 
 
@@ -312,14 +313,23 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
     """
     if created:
         # set up the lock counter
-        instance.wait_count = Bill.objects.filter(
+        pending_bill = Bill.objects.filter(
             group=instance.group
         ).exclude(
             transaction__state=FINISH
         ).exclude(
-            transaction__state=CONCENCUS
-        ).distinct().count()
+            transaction__state=COMMITED
+        ).distinct()
+        instance.wait_count = pending_bill.count()
         instance.save()
+
+        pending_bill.update(settlement=instance)
+
+        # Commit all the concencus tr
+        Transaction.objects.filter(
+            state=CONCENCUS,
+            bill__group=instance.group
+        ).update(state=COMMITED)
 
     # we gain the lock to start s_tr
     if instance.wait_count == 0 and instance.settletransaction_set.count() == 0:
