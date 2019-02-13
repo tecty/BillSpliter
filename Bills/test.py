@@ -313,5 +313,96 @@ class SettleCase(TestCase):
         # s_tr will be setted
         self.assertEqual(s.settletransaction_set.all().count(), 3)
 
-        # self.assertEqual(s.settletransaction_set.get(id=1).amount, 15)
-        # self.assertEqual(s.settletransaction_set.get(id=1).amount, 15)
+        self.assertEqual(s.settletransaction_set.get(id=1).amount, 15)
+        self.assertEqual(s.settletransaction_set.get(id=2).amount, 15)
+        self.assertEqual(s.settletransaction_set.get(id=3).amount, 15)
+
+    def test_s_tr_lock_aquire_creation(self):
+        """
+        Create the settlement after the lock is acquire.
+        (Async S_tr creation)
+        Test all the settle transaction is setted up correctly
+        """
+        create_bill(self.ul, 10)
+
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
+        self.assertEqual(s.wait_count, 0)
+
+        # s_tr will be setted
+        self.assertEqual(s.settletransaction_set.all().count(), 3)
+
+        self.assertEqual(s.settletransaction_set.get(id=1).amount, 17.5)
+        self.assertEqual(s.settletransaction_set.get(id=2).amount, 17.5)
+        self.assertEqual(s.settletransaction_set.get(id=3).amount, 17.5)
+
+    def test_s_tr_approve_by_from_user(self):
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
+        s_tr = s.settletransaction_set.get(id=1)
+
+        s_tr.approve(s_tr.from_u)
+
+        self.assertEqual(s_tr.state, APPROVED)
+        self.assertEqual(s.state, PREPARE)
+
+    def test_s_tr_success_payment(self):
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
+        s_tr = s.settletransaction_set.get(id=1)
+
+        # both user has agree to this payment
+        s_tr.approve(s_tr.from_u)
+        s_tr.approve(s_tr.to_u)
+
+        # concence this bill
+        self.assertEqual(s_tr.state, CONCENCUS)
+        self.assertEqual(s.state, PREPARE)
+
+    def test_s_tr_success_finish(self):
+        """
+        No only need to test all the s_tr is finished, 
+        but also all the bill state is swith to finsh
+        """
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
+        for s_tr in s.settletransaction_set.all():
+
+            # both user has agree to this payment
+            s_tr.approve(s_tr.from_u)
+            s_tr.approve(s_tr.to_u)
+
+        self.asertEqual(s.state, FINISH)
+        self.asertEqual(s.bill_set.first().state, FINISH)
+
+    def test_s_tr_reject(self):
+
+        s = Settlement.objects.create(
+            title="Feb,2019",
+            owner=self.ul[0],
+            group=self.group
+        )
+
+        s_tr = s.settletransaction_set.get(id=1)
+
+        # from user didn't finished his payment
+        s_tr.approve(s_tr.from_u)
+        s_tr.reject(s_tr.to_u)
+
+        self.assertEqual(s_tr.state, PREPARE)

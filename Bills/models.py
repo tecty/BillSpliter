@@ -74,51 +74,6 @@ class StatefulTransactionModel(models.Model):
     )
 
 
-class Settlement(TimestampModel):
-    """
-
-    Settle transaction is created when the settlement class gain the lock 
-    The lock is provided by wait_count, when wait_count count the waiting bill
-    is become 0, this settlement gain the lock. 
-
-    Then it will call the method at the end of this file, to creat all the settle 
-    transactions.
-    """
-    title = CharField(max_length=255)
-    description = CharField(max_length=2048, blank=True)
-    owner = ForeignKey(User, on_delete=models.PROTECT)
-    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
-    # counter of unfinished integer
-    # first save will not trigger s_tr creation
-    # after it calculate how many bills it should wait
-    wait_count = PositiveIntegerField(default=1)
-
-    @property
-    def state(self):
-        # maping of the state from transaction
-        s = {
-            PREPARE: PREPARE,
-            APPROVED: PREPARE,
-            REJECTED: SUSPEND,
-            CONCENCUS: CONCENCUS,
-            COMMITED: COMMITED,
-            FINISH: FINISH,
-            SUSPEND: SUSPEND,
-            None: SUSPEND
-        }
-        # get random one of tr
-        # and return its mapping
-        return s[self.settletransaction_set.first().state]
-
-
-class SettleTransaction(StatefulTransactionModel):
-    """
-    Because the behaviour of stage changes is different
-    And included stage is different 
-    """
-    settle = ForeignKey(Settlement, on_delete=models.CASCADE)
-
-
 class Bill(TimestampModel):
     # informaqtion about this bill
     title = CharField(max_length=255)
@@ -134,7 +89,7 @@ class Bill(TimestampModel):
     Blankable is for validator, nullable is for database creation 
     """
     settlement = ForeignKey(
-        Settlement, on_delete=models.PROTECT, null=True, blank=True)
+        'Settlement', on_delete=models.PROTECT, null=True, blank=True)
 
     @property
     def state(self):
@@ -293,6 +248,62 @@ class Transaction(StatefulTransactionModel):
         )['asum']
 
 
+class Settlement(TimestampModel):
+    """
+
+    Settle transaction is created when the settlement class gain the lock 
+    The lock is provided by wait_count, when wait_count count the waiting bill
+    is become 0, this settlement gain the lock. 
+
+    Then it will call the method at the end of this file, to creat all the settle 
+    transactions.
+    """
+    title = CharField(max_length=255)
+    description = CharField(max_length=2048, blank=True)
+    owner = ForeignKey(User, on_delete=models.PROTECT)
+    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+    # counter of unfinished integer
+    # first save will not trigger s_tr creation
+    # after it calculate how many bills it should wait
+    wait_count = PositiveIntegerField(default=1)
+
+    @property
+    def state(self):
+        # before the s_tr is set up, all is suspend
+        if self.settletransaction_set.count() == 0:
+            return SUSPEND
+        # maping of the state from transaction
+        s = {
+            PREPARE: PREPARE,
+            APPROVED: PREPARE,
+            REJECTED: SUSPEND,  # Not exist
+            CONCENCUS: PREPARE,
+            COMMITED: FINISH,  # Not exist
+            FINISH: FINISH,
+            SUSPEND: PREPARE,  # Not exist in mapping
+            None: PREPARE
+        }
+        # get random one of tr
+        # and return its mapping
+        return s[self.settletransaction_set.first().state]
+
+    def try_finish(self):
+        """
+        When all the s_tr is concencus, finish all the tr,
+        and finish all the bills
+        """
+
+        if self.settletransaction_set.exclude(
+                state=CONCENCUS).count() == 0:
+            # there's no more s_tr to wait, end this s_tr and
+            # finish all the bills
+            self.settletransaction_set.filter(
+                state=CONCENCUS).update(state=FINISH)
+            Transaction.objects.filter(
+                state=COMMITED
+            ).update(state=FINISH)
+
+
 @receiver(post_save, sender=Settlement)
 def attach_settle_transactions(sender, instance, created, *args, **kwargs):
     """
@@ -337,3 +348,42 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
                     from_u=instance.group.owner,
                     amount=-amount
                 )
+
+
+class SettleTransaction(StatefulTransactionModel):
+    """
+    Because the behaviour of stage changes is different
+    And included stage is different 
+    @invariant: from_u != to_u
+    """
+    settle = ForeignKey(Settlement, on_delete=models.CASCADE)
+
+    def approve(self, request_user):
+        """
+        Approve the transaction by from_u then concencus by to_u
+        Or error 
+        """
+        if self.state == PREPARE and request_user == self.from_u:
+            self.state = APPROVED
+            self.save()
+            return True
+        if self.state == APPROVED and request_user == self.to_u:
+            self.state = CONCENCUS
+            self.save()
+
+            # this method is probe to wrong,
+            # circular call is shown
+            self.settle.try_finish()
+            return True
+        # else
+        return False
+
+    def reject(self, request_user):
+        """
+        to_user reject this is to revoke back to waiting 
+        """
+        if self.state == APPROVED and request_user == self.to_u:
+            self.state = PREPARE
+            self.save()
+            return True
+        return False
