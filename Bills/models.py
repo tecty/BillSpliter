@@ -253,13 +253,26 @@ class Transaction(StatefulTransactionModel):
         self.save()
 
     @classmethod
-    def get_balance(cls, user):
+    def get_balance(cls, user, settle=None):
+        """
+        @post: settle== None ==> return == balance with all unfinished and concus bill
+        @post: settle!= None ==> 
+            return == balance with all unfinished and concus bill
+            and bill == settle
+        """
+        # construct the basic query
+        query = cls.objects
+        if settle != None:
+            # update the query and filter
+            # filter by the given settle
+            query = query.filter(bill__settlement=settle)
+
         # calculate the given user's balance
         # Coalesce is to provide a 0 when the none type is occour
-        return cls.objects.filter(to_u=user).aggregate(
+        return query.filter(to_u=user).aggregate(
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']\
-            - cls.objects.filter(from_u=user).aggregate(
+            - query.filter(from_u=user).aggregate(
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']
 
@@ -319,6 +332,16 @@ class Settlement(TimestampModel):
                 state=COMMITED,
                 bill__settlement__id=self.id
             ).update(state=FINISH)
+
+    def get_waiting_bill(self):
+        """
+        return:list<bill> 
+        @post:  forall bill in return ==> bill.state != COMMITED && bill.state != FINISHED
+        """
+        return Bill.objects\
+            .exclude(transaction__state=COMMITED)\
+            .exclude(transaction__state=FINISH)\
+            .distinct()
 
 
 @receiver(post_save, sender=Settlement)

@@ -447,3 +447,30 @@ class SettleCase(TestCase):
         self.assertEqual(s.wait_count, 0)
         self.assertEqual(bill.state, COMMITED)
         self.assertEqual(s.settletransaction_set.all().count(), 3)
+
+    def test_get_balance_by_settlement(self):
+        s = self.create_settlement()
+        self.assertEqual(Transaction.get_balance(self.ul[0], s), 45)
+        self.assertEqual(Transaction.get_balance(self.ul[1], s), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[2], s), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[3], s), -15)
+
+        create_bill(self.ul, 10)
+
+        # uneffected even create more bill
+        self.assertEqual(Transaction.get_balance(self.ul[0], s), 45)
+        self.assertEqual(Transaction.get_balance(self.ul[1], s), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[2], s), -15)
+        self.assertEqual(Transaction.get_balance(self.ul[3], s), -15)
+
+    def test_get_waiting_bill(self):
+        bill1 = create_bill(self.ul, 10, PREPARE)
+        bill2 = create_bill(self.ul, 10, PREPARE)
+
+        s = self.create_settlement()
+
+        # should be waiting for two bill
+        self.assertEqual(s.get_waiting_bill().count(), 2)
+        # these two should be first and second bill
+        self.assertEqual(s.get_waiting_bill()[0], bill1)
+        self.assertEqual(s.get_waiting_bill()[1], bill2)
