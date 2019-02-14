@@ -245,6 +245,25 @@ class BillCase(TestCase):
         self.assertEqual(
             bill.transaction_set.first().state, PREPARE)
 
+    def test_approve_all(self):
+
+        bill1 = create_bill(
+            [self.user_list[0], self.user_list[1]], 10, PREPARE)
+        bill2 = create_bill(
+            [self.user_list[0], self.user_list[1], self.user_list[2]], 10, PREPARE)
+
+        Bill.approve_all(self.user_list[0])
+        Bill.approve_all(self.user_list[1])
+
+        # update bills
+        bill1.refresh_from_db()
+        bill2.refresh_from_db()
+
+        # bill1 get all member approved, so it's concencus
+        # bill2 need to get user2 concencus, so it still preparing
+        self.assertEqual(bill1.state, CONCENCUS)
+        self.assertEqual(bill2.state, PREPARE)
+
 
 class SettleCase(TestCase):
     def setUp(self):

@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import CharField, DateTimeField,\
     ForeignKey, DecimalField, PositiveIntegerField, \
-    Sum, Value
+    Sum, Value, Q
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from BillGroups.models import BillGroups
@@ -155,6 +155,22 @@ class Bill(TimestampModel):
             for tr in trs.exclude(from_u=request_uesr):
                 tr.state = SUSPEND
                 tr.save()
+
+    @classmethod
+    def approve_all(cls, request_user):
+        # find all the pending bill he need to pay,
+        # then pay them all
+        bills = cls.objects\
+            .filter(
+                transaction__state=PREPARE,
+                transaction__from_u=request_user
+            )
+
+        """
+        O(n^2) operation, no way to get faster 
+        """
+        for b in bills:
+            b.approve(request_user)
 
     def approve(self, request_uesr):
         # the transactions need to approved by request user
@@ -355,9 +371,8 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
         pending_bill = Bill.objects.filter(
             group=instance.group
         ).exclude(
-            transaction__state=FINISH
-        ).exclude(
-            transaction__state=COMMITED
+            Q(transaction__state=FINISH) |
+            Q(transaction__state=COMMITED)
         ).distinct()
         # these are the bill need to attach to this settlemnt
         pending_bill.update(settlement=instance)
