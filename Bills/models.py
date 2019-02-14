@@ -112,25 +112,41 @@ class Bill(TimestampModel):
         """
         @request_user: who make this request 
         @to_state: which state is this request is make to 
+
+        @pre: tr update is successful 
+
+        @post: if forall tr.state == APPROVE and \
+                tr.bill.settlement == NULL
+                then all tr.state == CONCENCUS 
+        @post: if forall tr.state == APPROVE and \
+                tr.bill.settlement != NULL
+                then all tr.state == COMMITED
+        @post: if to_state == REJECTED and \
+                then for all tr.state != REJECTED, tr.state = REJECTED and 
+                this.exclude(tr__state = REJECTED).count() == 1
         """
         # filter out the transaction set might need to update
         trs = self.transaction_set.all()
 
         if to_state == APPROVED:
-            if trs.exclude(from_u=request_uesr).count() == \
-                    trs.exclude(from_u=request_uesr)\
-                    .filter(state=APPROVED).count():
-                # all transations are approved
-                # push to next stage for all the transactions
-                for tr in trs:
-                    tr.state = CONCENCUS
-                    tr.save()
+            if trs.exclude(state=APPROVED).count() == 0:
 
                 # decrease the lock of settlement
                 # if there's any
                 if self.settlement != None:
                     self.settlement.wait_count -= 1
                     self.settlement.save()
+
+                    # if the settelment is attached,
+                    # then the state is directly to COMMITED
+                    trs.update(state=COMMITED)
+                    return
+
+                # ELSE
+                # all transations are approved
+                # push to next stage for all the transactions
+                trs.update(state=CONCENCUS)
+
             else:
                 # need more waiting
                 return

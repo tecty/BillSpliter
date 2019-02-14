@@ -11,7 +11,7 @@ from Bills.models import *
 #           bill.tr[i].amount == bill.tr[j].amount
 # @post: forall bill => bill.state == concencus
 # @post: forall tr => tr.state == concencus
-def create_bill(ul, total):
+def create_bill(ul, total, state=CONCENCUS):
     bill = Bill.objects.create(
         title="dinner",
         description="nothing",
@@ -24,7 +24,7 @@ def create_bill(ul, total):
         bill.transaction_set.create(
             from_u=u,
             to_u=ul[0],
-            state=CONCENCUS,
+            state=state,
             amount=total/len(ul)
         )
 
@@ -140,7 +140,7 @@ class BillCase(TestCase):
             ).state
         )
 
-    def test_approve_multiple_user(self):
+    def test_user_concencus(self):
         bill = Bill.objects.create(
             title="dinner",
             description="nothing",
@@ -233,6 +233,17 @@ class BillCase(TestCase):
         self.assertEqual(bill.transaction_set.count(), len(self.user_list))
         self.assertEqual(
             bill.transaction_set.first().amount, 10/len(self.user_list))
+        self.assertEqual(
+            bill.transaction_set.first().state, CONCENCUS)
+
+    def test_create_bill_util_with_prepare(self):
+        bill = create_bill(self.user_list, 10, PREPARE)
+
+        self.assertEqual(bill.transaction_set.count(), len(self.user_list))
+        self.assertEqual(
+            bill.transaction_set.first().amount, 10/len(self.user_list))
+        self.assertEqual(
+            bill.transaction_set.first().state, PREPARE)
 
 
 class SettleCase(TestCase):
@@ -364,7 +375,7 @@ class SettleCase(TestCase):
 
     def test_s_tr_success_finish(self):
         """
-        No only need to test all the s_tr is finished, 
+        No only need to test all the s_tr is finished,
         but also all the bill state is swith to finsh
         """
         s = self.create_settlement()
@@ -398,3 +409,41 @@ class SettleCase(TestCase):
         s = self.create_settlement()
 
         self.assertEqual(Bill.objects.first().settlement, s)
+        self.assertEqual(Bill.objects.filter(settlement=s).count(), 3)
+
+    def test_settlement_is_attached_to_async_bill(self):
+        """
+        prepare bill will be attached to ongoing attachment 
+        """
+        bill = create_bill(self.ul, 10, PREPARE)
+        s = self.create_settlement()
+        # update the object, the object will be attach the settlment
+        bill.refresh_from_db()
+        self.assertEqual(bill.settlement, s)
+
+    def test_s_tr_async_concencus_s_tr_create(self):
+        """
+        Async tr is concencus will be directly
+        going to concencus state
+        """
+        bill = create_bill(self.ul, 10, PREPARE)
+
+        s = self.create_settlement()
+
+        self.assertEqual(s.wait_count, 1)
+
+        # sync to update bill with settlment attached
+        bill.refresh_from_db()
+
+        # call the internal method, approved by all the user
+        bill.approve(self.ul[0])
+        bill.approve(self.ul[1])
+        bill.approve(self.ul[2])
+        bill.approve(self.ul[3])
+
+        # I should be observed all the bill will be directly to
+        # committed, all the s_tr will be setted up
+        s.refresh_from_db()
+        self.assertEqual(s.wait_count, 0)
+        self.assertEqual(bill.state, COMMITED)
+        self.assertEqual(s.settletransaction_set.all().count(), 3)
