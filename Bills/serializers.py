@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
-from .models import Transaction, Bill
-
-
+from .models import Transaction, Bill, SettleTransaction, Settlement
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -60,7 +58,41 @@ class BillSerializer(serializers.ModelSerializer):
         fields = (
             'title',
             'owner',
+            'state',
+            'created',
             'group',
             'description',
             'transactions'
+        )
+
+
+class SettleSerializer(serializers.ModelSerializer):
+    settle_tr = serializers.PrimaryKeyRelatedField(
+        source='settletransaction_set',
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = Settlement
+        fields = (
+            'title',
+            'owner',
+            'created',
+            'group',
+            'description',
+            'settle_tr'
+        )
+
+
+class SettleTrSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SettleTransaction
+        fields = (
+            'settle',
+            'from_u',
+            'to_u',
+            'modified'
+            'amount',
+            'state'
         )

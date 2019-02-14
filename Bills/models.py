@@ -424,6 +424,7 @@ class SettleTransaction(StatefulTransactionModel):
     And included stage is different 
     @invariant: from_u != to_u
     """
+    modified = DateTimeField(auto_now=True)
     settle = ForeignKey(Settlement, on_delete=models.CASCADE)
 
     def approve(self, request_user):
