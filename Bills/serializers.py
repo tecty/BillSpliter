@@ -66,8 +66,21 @@ class BillSerializer(serializers.ModelSerializer):
         )
 
 
+class SettleTrSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SettleTransaction
+        fields = (
+            'settle',
+            'from_u',
+            'to_u',
+            'modified'
+            'amount',
+            'state'
+        )
+
+
 class SettleSerializer(serializers.ModelSerializer):
-    settle_tr = serializers.PrimaryKeyRelatedField(
+    settle_tr = SettleTrSerializer(
         source='settletransaction_set',
         many=True,
         read_only=True
@@ -82,17 +95,4 @@ class SettleSerializer(serializers.ModelSerializer):
             'group',
             'description',
             'settle_tr'
-        )
-
-
-class SettleTrSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SettleTransaction
-        fields = (
-            'settle',
-            'from_u',
-            'to_u',
-            'modified'
-            'amount',
-            'state'
         )

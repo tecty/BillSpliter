@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .permissions import *
 from .serializers import *
-from .models import FINISH
+from .models import PREPARE, SUSPEND
 
 from rest_framework import status
 from rest_framework.decorators import action
@@ -72,14 +72,40 @@ class BillViewSet(viewsets.ModelViewSet):
         )
 
     def perform_destroy(self, instance):
-        if instance.state != FINISH:
+        if instance.state == PREPARE or instance.state == SUSPEND:
             instance.delete()
         else:
             # Couldn't delete a settled bill
             raise serializers.ValidationError({
-                'Finished Bill could not be deleted.'
+                'above concencus stage bill could not be deleted'
             })
 
-    @action(detail=True, methods=['GET'], name='Approve')
+    @action(detail=True, methods=['POST'], name='Approve')
     def approve(self, request, pk=None):
-        pass
+        self.get_object().approve(request.user)
+
+        return Response(
+            bill_s.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
+    @action(detail=True, methods=['POST'], name='Reject')
+    def reject(self, request, pk=None):
+        self.get_object().reject(request.user)
+
+        return Response(
+            bill_s.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
+    @action(detail=True, methods=['POST'], name='Approve_all')
+    def reject(self, request):
+        Bill.approve_all(request.user)
+
+        return Response(
+            bill_s.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
