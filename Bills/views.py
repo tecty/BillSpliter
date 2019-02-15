@@ -24,7 +24,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 class BillViewSet(viewsets.ModelViewSet):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (
+        IsOwnerOrReadOnly, DelectionProtectedByState,)
 
     def create(self, request):
         """
@@ -71,19 +72,21 @@ class BillViewSet(viewsets.ModelViewSet):
             headers=headers
         )
 
-    def perform_destroy(self, instance):
-        if instance.state == PREPARE or instance.state == SUSPEND:
-            instance.delete()
-        else:
-            # Couldn't delete a settled bill
-            raise serializers.ValidationError({
-                'above concencus stage bill could not be deleted'
-            })
+    # def perform_destroy(self, instance):
+    #     if instance.state == PREPARE or instance.state == SUSPEND:
+    #         instance.delete()
+    #     else:
+    #         # Couldn't delete a settled bill
+    #         raise serializers.ValidationError({
+    #             'above concencus stage bill could not be deleted'
+    #         })
 
     @action(detail=True, methods=['POST'], name='Approve')
     def approve(self, request, pk=None):
         self.get_object().approve(request.user)
-
+        headers = self.get_success_headers(
+            BillSerializer(self.get_object())
+        )
         return Response(
             bill_s.data,
             status=status.HTTP_201_CREATED,
@@ -94,6 +97,9 @@ class BillViewSet(viewsets.ModelViewSet):
     def reject(self, request, pk=None):
         self.get_object().reject(request.user)
 
+        headers = self.get_success_headers(
+            BillSerializer(self.get_object())
+        )
         return Response(
             bill_s.data,
             status=status.HTTP_201_CREATED,
@@ -104,8 +110,32 @@ class BillViewSet(viewsets.ModelViewSet):
     def reject(self, request):
         Bill.approve_all(request.user)
 
+        headers = self.get_success_headers(
+            BillSerializer(self.get_object())
+        )
         return Response(
             bill_s.data,
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
+
+class SettleTransactionViewSet(viewsets.ModelViewSet):
+    queryset = SettleTransaction.objects.all()
+    serializer_class = SettleTrSerializer
+    permission_classes = (NoCreation, IsRelatedOrReadOnly,)
+
+
+class SettlementViewSet(viewsets.ModelViewSet):
+    queryset = SettleTransaction.objects.all()
+    serializer_class = SettleTrSerializer
+    permission_classes = (IsOwnerOrReadOnly, DelectionProtectedByState,)
+
+    def perform_destroy(self, instance):
+        if instance.state == PREPARE or instance.state == SUSPEND:
+            instance.delete()
+        else:
+            # Couldn't delete a settled bill
+            raise serializers.ValidationError({
+                'above concencus stage bill could not be deleted'
+            })
