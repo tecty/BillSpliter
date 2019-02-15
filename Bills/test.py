@@ -493,3 +493,14 @@ class SettleCase(TestCase):
         # these two should be first and second bill
         self.assertEqual(s.get_waiting_bill()[0], bill1)
         self.assertEqual(s.get_waiting_bill()[1], bill2)
+
+    def test_delete_waiting_bill_start_up_settlement(self):
+        bill1 = create_bill(self.ul, 10, PREPARE)
+        s = self.create_settlement()
+        self.assertEqual(s.state, SUSPEND)
+        bill1.refresh_from_db()
+        bill1.delete()
+        s.refresh_from_db()
+        self.assertEqual(s.wait_count, 0)
+        self.assertEqual(s.state, PREPARE)
+        self.assertEqual(s.settletransaction_set.count(), 3)

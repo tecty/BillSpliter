@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from BillGroups.models import BillGroups
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 
 """
 Three-phase-commit
@@ -210,6 +210,17 @@ class Bill(TimestampModel):
                 tr.revoke()
             return True
         return False
+
+
+@receiver(pre_delete, sender=Bill)
+def remove_settlement_wait_count(sender, instance, using, **kwargs):
+    """
+    Decrease the waitcount, and instance save method will trigger the 
+    Settlment to gain the lock and set up the settle tr
+    """
+    if instance.settlement != None:
+        instance.settlement.wait_count -= 1
+        instance.settlement.save()
 
 
 class Transaction(StatefulTransactionModel):
