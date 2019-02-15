@@ -504,3 +504,13 @@ class SettleCase(TestCase):
         self.assertEqual(s.wait_count, 0)
         self.assertEqual(s.state, PREPARE)
         self.assertEqual(s.settletransaction_set.count(), 3)
+
+    def test_delete_settle_bill_back_to_concus(self):
+        s = self.create_settlement()
+        s.delete()
+        self.assertEqual(
+            Bill.objects
+                .filter(transaction__state=CONCENCUS)
+                .distinct().count(),
+            3
+        )

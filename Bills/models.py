@@ -89,7 +89,11 @@ class Bill(TimestampModel):
     Blankable is for validator, nullable is for database creation 
     """
     settlement = ForeignKey(
-        'Settlement', on_delete=models.PROTECT, null=True, blank=True)
+        'Settlement',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     @property
     def state(self):
@@ -427,6 +431,16 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
                     from_u=instance.group.owner,
                     amount=-amount
                 )
+
+
+@receiver(pre_delete, sender=Settlement)
+def remove_bill_attach(sender, instance, using, **kwargs):
+    # degrade the tr with commit state to concencus ,
+    # and with this settlement is attached
+    Transaction.objects.filter(
+        bill__settlement=instance,
+        state=COMMITED
+    ).update(state=CONCENCUS)
 
 
 class SettleTransaction(StatefulTransactionModel):
