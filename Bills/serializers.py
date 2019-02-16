@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from .models import Transaction, Bill, SettleTransaction, Settlement
+from BillGroups.models import BillGroups
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,6 +36,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    to_u = UserSerializer(
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         model = Transaction
         fields = (
@@ -68,11 +73,23 @@ class BriefTransactionSerializer(serializers.ModelSerializer):
 
 
 class BillSerializer(serializers.ModelSerializer):
+
+    owner = UserSerializer(
+        default=serializers.CurrentUserDefault()
+    )
+
     transactions = serializers.PrimaryKeyRelatedField(
         source='transaction_set',
         many=True,
         read_only=True
     )
+
+    group = serializers.PrimaryKeyRelatedField(
+        queryset=BillGroups.objects.all()
+    )
+
+    def validate_group(self, value):
+        return BillGroups.objects.get(pk=value)
 
     class Meta:
         model = Bill

@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDMyMzMxNiwiZW1haWwiOiIifQ.fP6Zt3N1XHDn7r5JZh04rM0K85LsdsDvouKgJiJVR7k
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDMyNzkwOCwiZW1haWwiOiIifQ.A0aRMPvyVG7acagQ9nPTEpPfntBieCvF1iKkvaTCHQ8
 
 
 
@@ -35,7 +35,7 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "name":"test2"
+    "name":"test3"
 }
 
 ###
@@ -47,9 +47,10 @@ Authorization: {{auth}}
 {
     "title": "ss",
     "description": "ss",
+    "group":2,
     "transactions":[
         {
-            "from_u":1, 
+            "from_u":12, 
             "amount":"1.0"
         }
     ]

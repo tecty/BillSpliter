@@ -13,9 +13,6 @@ class GroupSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    def validate_owner(self, value):
-        return self.context['request'].user
-
     class Meta:
         model = BillGroups
         fields = (

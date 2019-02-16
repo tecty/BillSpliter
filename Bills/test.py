@@ -264,6 +264,17 @@ class BillCase(TestCase):
         self.assertEqual(bill1.state, CONCENCUS)
         self.assertEqual(bill2.state, PREPARE)
 
+    # def test_concencus_bill_prevent_delete(self):
+    #     bill1 = create_bill(
+    #         [self.user_list[0], self.user_list[1]], 10, CONCENCUS)
+    #     bill_id = bill1.id
+    #     try:
+    #         bill1.delete()
+    #     except Exception as e:
+    #         pass
+    #     bill1.refresh_from_db()
+    #     self.assertEqual(bill1.id, bill_id)
+
 
 class SettleCase(TestCase):
     def setUp(self):

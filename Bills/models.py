@@ -110,7 +110,10 @@ class Bill(TimestampModel):
         }
         # get random one of tr
         # and return its mapping
-        return s[self.transaction_set.first().state]
+        tr_first = self.transaction_set.first()
+        if tr_first:
+            return s[tr_first.state]
+        return PREPARE
 
     def tr_state_update(self, request_uesr, to_state):
         """
@@ -218,6 +221,12 @@ class Bill(TimestampModel):
 
 @receiver(pre_delete, sender=Bill)
 def remove_settlement_wait_count(sender, instance, using, **kwargs):
+    """
+    If it's Upper than concencus state, prevent it from delection
+
+    """
+    if instance.state not in [PREPARE, SUSPEND]:
+        return TypeError("Above concencus state could not be delete.")
     """
     Decrease the waitcount, and instance save method will trigger the 
     Settlment to gain the lock and set up the settle tr
@@ -345,7 +354,10 @@ class Settlement(TimestampModel):
         }
         # get random one of tr
         # and return its mapping
-        return s[self.settletransaction_set.first().state]
+        tr_first = self.settletransaction_set.first()
+        if tr_first:
+            return s[tr_first.state]
+        return PREPARE
 
     def try_finish(self):
         """

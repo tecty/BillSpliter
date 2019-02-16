@@ -35,19 +35,18 @@ class BillViewSet(viewsets.ModelViewSet):
         # pop the transaction data first
         trs = request.data.pop('transactions')
 
-        # add a owner
-        request.data['owner'] = request.user
-        # create the bill instance
-        bill = BillSerializer().create(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        bill = serializer.save()
 
         try:
             for tr in trs:
                 # filling the missing information
-                tr['bill'] = bill
-                tr['bill_transaction_to_user'] = request.user
-                tr['bill_transaction_from_user'] = User.objects.get(
-                    pk=tr['from_u'])
-                tr = TransactionSerializer().create(tr)
+                tr['bill'] = bill.id
+                tr_s = TransactionSerializer(data=tr)
+                tr_s.is_valid(raise_exception=True)
+                tr = tr_s.save()
                 # wrap the transaction creation
                 bill.transaction_set.add(tr)
 
@@ -107,7 +106,7 @@ class BillViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=['POST'], name='Approve_all')
-    def reject(self, request):
+    def approve_all(self, request):
         Bill.approve_all(request.user)
 
         headers = self.get_success_headers(
