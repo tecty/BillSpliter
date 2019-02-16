@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU0MzY2NDYyNSwiZW1haWwiOiIifQ.HCgwGae2ijVUHnOkKTBXtyRSYnHAz3Llk9S-LbXYiWY
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDMyMzMxNiwiZW1haWwiOiIifQ.fP6Zt3N1XHDn7r5JZh04rM0K85LsdsDvouKgJiJVR7k
 
 
 
@@ -27,9 +27,19 @@ Content-Type: application/json
 }
 
 
+###
+# group creation
+
+POST {{baseUrl}}groups/ HTTP/1.1
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+    "name":"test2"
+}
 
 ###
-
+# bill creation
 POST {{baseUrl}}bills/ HTTP/1.1
 Content-Type: application/json
 Authorization: {{auth}}

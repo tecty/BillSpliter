@@ -46,6 +46,27 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
 
 
+class BriefTransactionSerializer(serializers.ModelSerializer):
+    title = serializers.StringRelatedField(
+        source='bill.title'
+    )
+    description = serializers.StringRelatedField(
+        source='bill.description'
+    )
+
+    class Meta:
+        model = Transaction
+        fields = (
+            'bill',
+            'title',
+            'description',
+            'from_u',
+            'to_u',
+            'amount',
+            'state'
+        )
+
+
 class BillSerializer(serializers.ModelSerializer):
     transactions = serializers.PrimaryKeyRelatedField(
         source='transaction_set',
