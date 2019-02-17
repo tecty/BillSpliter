@@ -316,12 +316,16 @@ class Transaction(StatefulTransactionModel):
             and bill == settle
         """
         # construct the basic query
-        query = cls.objects.filter(
-            Q(state=COMMITED) | Q(state=CONCENCUS))
+        query = cls.objects
         if settle != None:
             # update the query and filter
             # filter by the given settle
-            query = query.filter(bill__settlement=settle)
+            query = query.filter(bill__settlement=settle).filter(
+                Q(state=COMMITED) | Q(state=FINISH))
+
+        else:
+            query = query.filter(
+                Q(state=COMMITED) | Q(state=CONCENCUS))
 
         # calculate the given user's balance
         # Coalesce is to provide a 0 when the none type is occour
@@ -331,6 +335,16 @@ class Transaction(StatefulTransactionModel):
             - query.filter(from_u=user).distinct().aggregate(
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']
+
+    @classmethod
+    def get_gdp_by_settlement(cls, settle):
+        return cls.get_trs_by_settlement(settle).aggregate(
+            asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']
+
+    @classmethod
+    def get_trs_by_settlement(cls, settle):
+        return cls.objects.filter(bill__settlement=settle)
 
     @classmethod
     def get_waitng_tr(cls, user):
@@ -383,6 +397,34 @@ class Settlement(TimestampModel):
         if tr_first:
             return s[tr_first.state]
         return PREPARE
+
+    @property
+    def gdp(self):
+        return Transaction.get_gdp_by_settlement(self)
+
+    @property
+    def tr_count(self):
+        return Transaction.get_trs_by_settlement(self).count()
+
+    def get_balance_by_user(self, user):
+        """ 
+        Use settle transaction to trace back the balance
+        to reduce the calculation from server  
+        """
+
+        query = self.settletransaction_set
+        return query.filter(to_u=user).distinct().aggregate(
+            asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']\
+            - query.filter(from_u=user).distinct().aggregate(
+            asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']
+
+    def get_actual_pay_by_user(self, user):
+        return Transaction.get_trs_by_settlement(self)\
+            .filter(from_u=user).aggregate(
+                asum=Coalesce(Sum('amount'), Value(0))
+        )['asum']
 
     def try_finish(self):
         """

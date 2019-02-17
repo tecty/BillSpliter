@@ -105,3 +105,23 @@ class SettlementViewSet(viewsets.ModelViewSet):
         query = Settlement.get_waiting_bill(self.get_object())
 
         return Response(BillSerializer(query, many=True).data)
+
+    @action(detail=True, methods=['GET'])
+    def include_bill(self, request, pk=None):
+        return Response(BillSerializer(
+            self.get_object().bill_set, many=True
+        ).data)
+
+    @action(detail=True, methods=['GET'])
+    def statistic(self, request, pk=None):
+        """
+        Some worthknowing statistics about this transaction
+        Including actual pay, balance, GDP, tr_count 
+        """
+        settle = self.get_object()
+        return Response({
+            'gdp': settle.gdp,
+            'tr_count': settle.tr_count,
+            'balance': settle.get_balance_by_user(self.request.user),
+            'actual_pay': settle.get_actual_pay_by_user(self.request.user),
+        })
