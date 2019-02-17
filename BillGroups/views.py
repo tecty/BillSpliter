@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from Bills.permissions import IsOwnerOrReadOnly
+from rest_framework.decorators import action
 from .serializers import *
 # Create your views here.
 
@@ -15,3 +16,13 @@ class GroupViewSet(viewsets.ModelViewSet):
         serializer.save().addUser(
             self.request.user
         )
+
+    @action(detail=True, methods=['POST'], name='add_user')
+    def add_user(self, request, pk=None):
+        self.get_object().addUser(self.request.data['user'])
+        return self.retrieve(self.request)
+
+    @action(detail=True, methods=['POST'], name='del_user')
+    def del_user(self, request, pk=None):
+        self.get_object().delUser(self.request.data['user'])
+        return self.retrieve(self.request)

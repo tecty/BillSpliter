@@ -6,11 +6,13 @@ from django.contrib.auth.models import User, Group
 class BillGroups(Group):
     owner = models.ForeignKey(User, models.PROTECT)
 
-    def addUser(self, user):
-        self.user_set.add(user)
+    def addUser(self, user_id):
+        self.user_set.add(
+            User.objects.get(pk=user_id))
 
-    def delUser(self, user):
-        self.user_set.remove(user)
+    def delUser(self, user_id):
+        self.user_set.remove(
+            User.objects.get(pk=user_id))
 
     @classmethod
     # filter out the instance of user's bill groups
