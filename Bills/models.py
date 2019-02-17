@@ -322,6 +322,15 @@ class Transaction(StatefulTransactionModel):
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']
 
+    @classmethod
+    def get_waitng_tr(cls, user):
+        """
+        Find all the waiting decition trancation by this user 
+        """
+        return cls.objects.filter(
+            Q(to_u=user) | Q(from_u=user)
+        ).filter(state=PREPARE)
+
 
 class Settlement(TimestampModel):
     """

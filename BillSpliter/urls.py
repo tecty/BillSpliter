@@ -19,7 +19,8 @@ from django.conf.urls import include, url
 from rest_framework import routers
 # bill views
 from Bills.views import UserViewSet,\
-    TransactionViewSet, BillViewSet
+    TransactionViewSet, BillViewSet,\
+    BriefTransactionViewSet
 from BillGroups.views import GroupViewSet
 # urls
 from rest_framework_jwt.views import obtain_jwt_token
@@ -31,6 +32,7 @@ router.register('users', UserViewSet)
 router.register('groups', GroupViewSet)
 router.register('trans', TransactionViewSet)
 router.register('bills', BillViewSet)
+router.register('brief_tr', BriefTransactionViewSet)
 
 
 urlpatterns = [

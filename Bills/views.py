@@ -18,7 +18,11 @@ class UserViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = (NoCreation, IsOwnerOrReadOnly,)
+    permission_classes = (
+        NoCreation, IsOwnerOrReadOnly,
+        DelectionProtectedByState,
+        UpdateProtectedByState,
+    )
 
 
 class BillViewSet(viewsets.ModelViewSet):
@@ -69,6 +73,15 @@ class BillViewSet(viewsets.ModelViewSet):
         )
 
 
+class BriefTransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = BriefTransactionSerializer
+    permission_classes = (NoCreation, IsRelatedOrReadOnly,)
+
+    def get_queryset(self):
+        return Transaction.get_waitng_tr(self.request.user)
+
+
 class SettleTransactionViewSet(viewsets.ModelViewSet):
     queryset = SettleTransaction.objects.all()
     serializer_class = SettleTrSerializer
@@ -79,12 +92,3 @@ class SettlementViewSet(viewsets.ModelViewSet):
     queryset = SettleTransaction.objects.all()
     serializer_class = SettleTrSerializer
     permission_classes = (IsOwnerOrReadOnly, DelectionProtectedByState,)
-
-    def perform_destroy(self, instance):
-        if instance.state == PREPARE or instance.state == SUSPEND:
-            instance.delete()
-        else:
-            # Couldn't delete a settled bill
-            raise serializers.ValidationError({
-                'above concencus stage bill could not be deleted'
-            })
