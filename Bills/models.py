@@ -83,10 +83,10 @@ class Bill(TimestampModel):
     group = ForeignKey(BillGroups, on_delete=models.PROTECT)
 
     """
-    Settlement will be attach to a bill 
-    Nullable foreign key will require both nullable and blankable 
+    Settlement will be attach to a bill
+    Nullable foreign key will require both nullable and blankable
     https://stackoverflow.com/questions/16589069/foreignkey-does-not-allow-null-values
-    Blankable is for validator, nullable is for database creation 
+    Blankable is for validator, nullable is for database creation
     """
     settlement = ForeignKey(
         'Settlement',
@@ -117,19 +117,19 @@ class Bill(TimestampModel):
 
     def tr_state_update(self, request_uesr, to_state):
         """
-        @request_user: who make this request 
-        @to_state: which state is this request is make to 
+        @request_user: who make this request
+        @to_state: which state is this request is make to
 
-        @pre: tr update is successful 
+        @pre: tr update is successful
 
         @post: if forall tr.state == APPROVE and \
                 tr.bill.settlement == NULL
-                then all tr.state == CONCENCUS 
+                then all tr.state == CONCENCUS
         @post: if forall tr.state == APPROVE and \
                 tr.bill.settlement != NULL
                 then all tr.state == COMMITED
         @post: if to_state == REJECTED and \
-                then for all tr.state != REJECTED, tr.state = REJECTED and 
+                then for all tr.state != REJECTED, tr.state = REJECTED and
                 this.exclude(tr__state = REJECTED).count() == 1
         """
         # filter out the transaction set might need to update
@@ -141,12 +141,16 @@ class Bill(TimestampModel):
                 # decrease the lock of settlement
                 # if there's any
                 if self.settlement != None:
-                    self.settlement.wait_count -= 1
-                    self.settlement.save()
-
                     # if the settelment is attached,
                     # then the state is directly to COMMITED
                     trs.update(state=COMMITED)
+                    assert(trs.count != 0)
+
+                    # then here will infrom the settlement to settup the
+                    # settlement transactions
+                    self.settlement.wait_count -= 1
+                    self.settlement.save()
+
                     return
 
                 # ELSE
@@ -174,7 +178,7 @@ class Bill(TimestampModel):
             )
 
         """
-        O(n^2) operation, no way to get faster 
+        O(n^2) operation, no way to get faster
         """
         for b in bills:
             b.approve(request_user)
@@ -207,7 +211,7 @@ class Bill(TimestampModel):
 
     def commit(self):
         """
-        Non 'public' method, it's called by Settlement class 
+        Non 'public' method, it's called by Settlement class
         """
         if self.state == CONCENCUS:
             for tr in self.transaction_set.all():
@@ -234,7 +238,7 @@ def remove_settlement_wait_count(sender, instance, using, **kwargs):
     if instance.state not in [PREPARE, SUSPEND]:
         return TypeError("Above concencus state could not be delete.")
     """
-    Decrease the waitcount, and instance save method will trigger the 
+    Decrease the waitcount, and instance save method will trigger the
     Settlment to gain the lock and set up the settle tr
     """
     if instance.settlement != None:
@@ -257,7 +261,7 @@ class Transaction(StatefulTransactionModel):
 
     def approve(self):
         """
-        @pre: request user == self.from_u 
+        @pre: request user == self.from_u
         """
         if self.state == PREPARE:
             # only the prepare state can go be approved
@@ -298,16 +302,22 @@ class Transaction(StatefulTransactionModel):
         self.state = CONCENCUS
         self.save()
 
+    def __str__(self):
+        return "From %s to %s $%f in bill %d with state %s" % \
+            (self.from_u.username, self.to_u.username,
+             self.amount, self.bill.id, self.state)
+
     @classmethod
     def get_balance(cls, user, settle=None):
         """
         @post: settle== None ==> return == balance with all unfinished and concus bill
-        @post: settle!= None ==> 
+        @post: settle!= None ==>
             return == balance with all unfinished and concus bill
             and bill == settle
         """
         # construct the basic query
-        query = cls.objects
+        query = cls.objects.filter(
+            Q(state=COMMITED) | Q(state=CONCENCUS))
         if settle != None:
             # update the query and filter
             # filter by the given settle
@@ -315,17 +325,17 @@ class Transaction(StatefulTransactionModel):
 
         # calculate the given user's balance
         # Coalesce is to provide a 0 when the none type is occour
-        return query.filter(to_u=user).aggregate(
+        return query.filter(to_u=user).distinct().aggregate(
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']\
-            - query.filter(from_u=user).aggregate(
+            - query.filter(from_u=user).distinct().aggregate(
             asum=Coalesce(Sum('amount'), Value(0))
         )['asum']
 
     @classmethod
     def get_waitng_tr(cls, user):
         """
-        Find all the waiting decition trancation by this user 
+        Find all the waiting decition trancation by this user
         """
         return cls.objects.filter(
             Q(to_u=user) | Q(from_u=user)
@@ -335,11 +345,11 @@ class Transaction(StatefulTransactionModel):
 class Settlement(TimestampModel):
     """
 
-    Settle transaction is created when the settlement class gain the lock 
+    Settle transaction is created when the settlement class gain the lock
     The lock is provided by wait_count, when wait_count count the waiting bill
-    is become 0, this settlement gain the lock. 
+    is become 0, this settlement gain the lock.
 
-    Then it will call the method at the end of this file, to creat all the settle 
+    Then it will call the method at the end of this file, to creat all the settle
     transactions.
     """
     title = CharField(max_length=255)
@@ -393,7 +403,7 @@ class Settlement(TimestampModel):
 
     def get_waiting_bill(self):
         """
-        return:list<bill> 
+        return:list<bill>
         @post:  forall bill in return ==> bill.state != COMMITED && bill.state != FINISHED
         """
         return Bill.objects\
@@ -438,7 +448,6 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
         ul = instance.group.user_set.all().exclude(
             pk=instance.group.owner.id)
         for u in ul:
-            assert(ul.count() == 3)
             # amount of this tr
             amount = Transaction.get_balance(u, instance)
 
@@ -473,7 +482,7 @@ def remove_bill_attach(sender, instance, using, **kwargs):
 class SettleTransaction(StatefulTransactionModel):
     """
     Because the behaviour of stage changes is different
-    And included stage is different 
+    And included stage is different
     @invariant: from_u != to_u
     """
     modified = DateTimeField(auto_now=True)
@@ -482,7 +491,7 @@ class SettleTransaction(StatefulTransactionModel):
     def approve(self, request_user):
         """
         Approve the transaction by from_u then concencus by to_u
-        Or error 
+        Or error
         """
         if self.state == PREPARE and request_user == self.from_u:
             self.state = APPROVED
@@ -501,7 +510,7 @@ class SettleTransaction(StatefulTransactionModel):
 
     def reject(self, request_user):
         """
-        to_user reject this is to revoke back to waiting 
+        to_user reject this is to revoke back to waiting
         """
         if self.state == APPROVED and request_user == self.to_u:
             self.state = PREPARE

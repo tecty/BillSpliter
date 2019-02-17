@@ -29,15 +29,15 @@ class GroupCase(TestCase):
         ]
 
     def test_add_user(self):
-        self.group.addUser(self.user002)
+        self.group.addUser(self.user002.id)
         self.assertEqual(
             self.user001,
             self.group.user_set.filter(pk=self.user001.id).get()
         )
 
     def test_del_user(self):
-        self.group.addUser(self.user002)
-        self.group.delUser(self.user002)
+        self.group.addUser(self.user002.id)
+        self.group.delUser(self.user002.id)
         self.assertEqual(
             0,
             self.group.user_set.filter(

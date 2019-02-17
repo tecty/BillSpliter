@@ -290,10 +290,10 @@ class SettleCase(TestCase):
 
         # dummy billing groups
         self.group = BillGroups.objects.create(name="test", owner=self.user001)
-        self.group.addUser(self.user001)
-        self.group.addUser(self.user002)
-        self.group.addUser(self.user003)
-        self.group.addUser(self.user004)
+        self.group.addUser(self.user001.id)
+        self.group.addUser(self.user002.id)
+        self.group.addUser(self.user003.id)
+        self.group.addUser(self.user004.id)
         self.user001.groups.add(self.group)
 
         # ul for user_list
@@ -489,7 +489,13 @@ class SettleCase(TestCase):
         bill.approve(self.user001)
         bill.approve(self.user002)
         bill.approve(self.user003)
+        s.refresh_from_db()
+        self.assertEqual(s.wait_count, 1)
+
         bill.approve(self.user004)
+
+        bill.refresh_from_db()
+        self.assertEqual(bill.state, COMMITED)
 
         s.refresh_from_db()
         self.assertEqual(s.wait_count, 0)
