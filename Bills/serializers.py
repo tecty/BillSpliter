@@ -91,6 +91,7 @@ class BillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bill
         fields = (
+            'id',
             'title',
             'owner',
             'state',

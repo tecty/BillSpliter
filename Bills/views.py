@@ -27,6 +27,9 @@ class BillViewSet(viewsets.ModelViewSet):
     permission_classes = (
         IsOwnerOrReadOnly, DelectionProtectedByState,)
 
+    def get_queryset(self):
+        return Bill.filter_user_bills(self.request.user)
+
     def perform_create(self, serialiizer):
         bill = serialiizer.save()
         try:
@@ -48,42 +51,21 @@ class BillViewSet(viewsets.ModelViewSet):
                 'transactions': 'Error in createing transactions'
             })
 
-    @action(detail=True, methods=['POST'], name='Approve')
+    @action(detail=True, methods=['GET'], name='Approve')
     def approve(self, request, pk=None):
         self.get_object().approve(request.user)
-        headers = self.get_success_headers(
-            BillSerializer(self.get_object())
-        )
-        return Response(
-            bill_s.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
+        return self.retrieve(self.request)
 
-    @action(detail=True, methods=['POST'], name='Reject')
+    @action(detail=True, methods=['GET'], name='Reject')
     def reject(self, request, pk=None):
         self.get_object().reject(request.user)
+        return self.retrieve(self.request)
 
-        headers = self.get_success_headers(
-            BillSerializer(self.get_object())
-        )
-        return Response(
-            bill_s.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
-
-    @action(detail=True, methods=['POST'], name='Approve_all')
+    @action(detail=False, methods=['GET'], name='Approve_all')
     def approve_all(self, request):
         Bill.approve_all(request.user)
-
-        headers = self.get_success_headers(
-            BillSerializer(self.get_object())
-        )
         return Response(
-            bill_s.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
+            status=status.HTTP_200_OK,
         )
 
 

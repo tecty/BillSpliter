@@ -179,6 +179,12 @@ class Bill(TimestampModel):
         for b in bills:
             b.approve(request_user)
 
+    @classmethod
+    def filter_user_bills(cls, user):
+        return cls.objects.filter(
+            Q(transaction__from_u=user) | Q(transaction__to_u=user))\
+            .distinct()
+
     def approve(self, request_uesr):
         # the transactions need to approved by request user
         if self.transaction_set.get(from_u=request_uesr).approve():
@@ -425,7 +431,7 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
         for u in ul:
             assert(ul.count() == 3)
             # amount of this tr
-            amount = Transaction.get_balance(u)
+            amount = Transaction.get_balance(u, instance)
 
             """
             base on the balance to decide the transfer direction
