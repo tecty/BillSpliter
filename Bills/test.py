@@ -478,6 +478,29 @@ class SettleCase(TestCase):
         self.assertEqual(bill.state, COMMITED)
         self.assertEqual(s.settletransaction_set.all().count(), 3)
 
+    def test_async_bill_wont_affect_tr_amount(self):
+        bill = create_bill(self.ul, 10, PREPARE)
+
+        s = self.create_settlement()
+
+        create_bill(self.ul, 10, CONCENCUS)
+
+        bill.refresh_from_db()
+        bill.approve(self.user001)
+        bill.approve(self.user002)
+        bill.approve(self.user003)
+        bill.approve(self.user004)
+
+        s.refresh_from_db()
+        self.assertEqual(s.wait_count, 0)
+
+        # s_tr will be setted
+        self.assertEqual(s.settletransaction_set.all().count(), 3)
+
+        self.assertEqual(s.settletransaction_set.get(id=1).amount, 17.5)
+        self.assertEqual(s.settletransaction_set.get(id=2).amount, 17.5)
+        self.assertEqual(s.settletransaction_set.get(id=3).amount, 17.5)
+
     def test_get_balance_by_settlement(self):
         s = self.create_settlement()
         self.assertEqual(Transaction.get_balance(self.ul[0], s), 45)
