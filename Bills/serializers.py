@@ -85,10 +85,6 @@ class BillSerializer(serializers.ModelSerializer):
         queryset=BillGroups.objects.all()
     )
 
-    def validate(self, data):
-        trs = data['transactions']
-        data.group.users
-
     class Meta:
         model = Bill
         fields = (

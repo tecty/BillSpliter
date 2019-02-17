@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDM5MDUyMiwiZW1haWwiOiIifQ.YvWgCoyV4lPIcKq8v3a_j4Fk9veFj4nXAJpdLKs9svs
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDM5MTczNSwiZW1haWwiOiIifQ.4l5WTxVm-2oSuZE2JtsKT7j4fbBKs8brEWMvrZwodrM
 
 
 
@@ -35,7 +35,7 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "name":"test3"
+    "name":"test2"
 }
 
 ###

@@ -14,7 +14,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # save the object and add the
         serializer.save().addUser(
-            self.request.user
+            self.request.user.id
         )
 
     @action(detail=True, methods=['POST'], name='add_user')

@@ -38,6 +38,12 @@ class BillViewSet(viewsets.ModelViewSet):
         bill = serialiizer.save()
         try:
             for tr in self.request.data['transactions']:
+                # perform the from user validation checking
+                if User.objects.get(pk=tr['from_u']) not in bill.group.user_set.all():
+                    raise serializers.ValidationError(
+                        "User %d is not in the group", tr['from_u']
+                    )
+
                 # filling the missing information
                 tr['bill'] = bill.id
                 tr['to_u'] = self.request.user.id
@@ -47,7 +53,8 @@ class BillViewSet(viewsets.ModelViewSet):
                 tr = tr_s.save()
                 # wrap the transaction creation
                 bill.transaction_set.add(tr)
-
+        except serializers.ValidationError as e:
+            raise e
         except Exception as e:
             bill.delete()
             print(e)
@@ -92,3 +99,9 @@ class SettlementViewSet(viewsets.ModelViewSet):
     queryset = Settlement.objects.all()
     serializer_class = SettleSerializer
     permission_classes = (IsOwnerOrReadOnly, DelectionProtectedByState,)
+
+    @action(detail=True, methods=['GET'], name='waiting_bill')
+    def waiting_bill(self, request, pk=None):
+        query = Settlement.get_waiting_bill(self.get_object())
+
+        return Response(BillSerializer(query, many=True).data)
