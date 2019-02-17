@@ -27,23 +27,14 @@ class BillViewSet(viewsets.ModelViewSet):
     permission_classes = (
         IsOwnerOrReadOnly, DelectionProtectedByState,)
 
-    def create(self, request):
-        """
-        Handle the model tagle at this level 
-        """
-
-        # pop the transaction data first
-        trs = request.data.pop('transactions')
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        bill = serializer.save()
-
+    def perform_create(self, serialiizer):
+        bill = serialiizer.save()
         try:
-            for tr in trs:
+            for tr in self.request.data['transactions']:
                 # filling the missing information
                 tr['bill'] = bill.id
+                tr['to_u'] = self.request.user.id
+                # use transaction serializer to perform this creation
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
                 tr = tr_s.save()
@@ -56,29 +47,6 @@ class BillViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError({
                 'transactions': 'Error in createing transactions'
             })
-
-        # try to approve a created bill
-        # hence the request user nolonger need to approve
-        # self transactions
-        bill.approve()
-
-        # wrap the transactions correctly and create success
-        bill_s = BillSerializer(bill)
-        headers = self.get_success_headers(bill_s)
-        return Response(
-            bill_s.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
-
-    # def perform_destroy(self, instance):
-    #     if instance.state == PREPARE or instance.state == SUSPEND:
-    #         instance.delete()
-    #     else:
-    #         # Couldn't delete a settled bill
-    #         raise serializers.ValidationError({
-    #             'above concencus stage bill could not be deleted'
-    #         })
 
     @action(detail=True, methods=['POST'], name='Approve')
     def approve(self, request, pk=None):

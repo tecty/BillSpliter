@@ -36,9 +36,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    to_u = UserSerializer(
-        default=serializers.CurrentUserDefault()
-    )
 
     class Meta:
         model = Transaction
@@ -78,7 +75,7 @@ class BillSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    transactions = serializers.PrimaryKeyRelatedField(
+    transactions = TransactionSerializer(
         source='transaction_set',
         many=True,
         read_only=True

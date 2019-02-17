@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDMyNzkwOCwiZW1haWwiOiIifQ.A0aRMPvyVG7acagQ9nPTEpPfntBieCvF1iKkvaTCHQ8
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDM4MzMyNSwiZW1haWwiOiIifQ.bOsaeccVgkLiFrD3gQbuIwEAO2M0C7HpsrKoNfSBwRs
 
 
 
@@ -50,7 +50,7 @@ Authorization: {{auth}}
     "group":2,
     "transactions":[
         {
-            "from_u":12, 
+            "from_u":1, 
             "amount":"1.0"
         }
     ]
