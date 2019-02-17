@@ -110,7 +110,7 @@ class SettleTrSerializer(serializers.ModelSerializer):
             'settle',
             'from_u',
             'to_u',
-            'modified'
+            'modified',
             'amount',
             'state'
         )
@@ -123,13 +123,26 @@ class SettleSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    owner = UserSerializer(
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         model = Settlement
         fields = (
             'title',
+            'description',
             'owner',
             'created',
+            'state',
             'group',
             'description',
             'settle_tr'
         )
+
+    def validate_group(self, group):
+        if group.owner != self.context['request'].user:
+            raise serializers.ValidationError(
+                'Only group owner can create settlement'
+            )
+        return group

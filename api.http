@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDM4ODk4MCwiZW1haWwiOiIifQ.8FyqazQY8pWtzKRt2v9heo4G_5Wpt7BnK_1ynJFd3_k
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDM5MDUyMiwiZW1haWwiOiIifQ.YvWgCoyV4lPIcKq8v3a_j4Fk9veFj4nXAJpdLKs9svs
 
 
 
@@ -87,3 +87,19 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {}
+
+
+###
+# create group settlement 
+POST {{baseUrl}}settlement/ HTTP/1.1
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+    "title": "A settlement",
+    "description": "Pay by phone",
+    "group": 2
+}
+
+
+

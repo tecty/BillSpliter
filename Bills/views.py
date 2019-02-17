@@ -89,6 +89,6 @@ class SettleTransactionViewSet(viewsets.ModelViewSet):
 
 
 class SettlementViewSet(viewsets.ModelViewSet):
-    queryset = SettleTransaction.objects.all()
-    serializer_class = SettleTrSerializer
+    queryset = Settlement.objects.all()
+    serializer_class = SettleSerializer
     permission_classes = (IsOwnerOrReadOnly, DelectionProtectedByState,)

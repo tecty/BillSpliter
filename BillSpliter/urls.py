@@ -20,7 +20,8 @@ from rest_framework import routers
 # bill views
 from Bills.views import UserViewSet,\
     TransactionViewSet, BillViewSet,\
-    BriefTransactionViewSet
+    BriefTransactionViewSet, SettleTransactionViewSet,\
+    SettlementViewSet
 from BillGroups.views import GroupViewSet
 # urls
 from rest_framework_jwt.views import obtain_jwt_token
@@ -33,6 +34,8 @@ router.register('groups', GroupViewSet)
 router.register('trans', TransactionViewSet)
 router.register('bills', BillViewSet)
 router.register('brief_tr', BriefTransactionViewSet)
+router.register('settle_tr', SettleTransactionViewSet)
+router.register('settlement', SettlementViewSet)
 
 
 urlpatterns = [
