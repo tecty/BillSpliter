@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, AllowAny
+from rest_framework.permissions import BasePermission, AllowAny, IsAuthenticated
 from .models import COMMITED, CONCENCUS, FINISH
 
 

@@ -22,6 +22,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
         NoCreation, IsOwnerOrReadOnly,
         DelectionProtectedByState,
         UpdateProtectedByState,
+        IsAuthenticated,
     )
 
 
@@ -29,7 +30,10 @@ class BillViewSet(viewsets.ModelViewSet):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
     permission_classes = (
-        IsOwnerOrReadOnly, DelectionProtectedByState,)
+        IsOwnerOrReadOnly,
+        DelectionProtectedByState,
+        IsAuthenticated,
+    )
 
     def get_queryset(self):
         return Bill.filter_user_bills(self.request.user)
@@ -79,11 +83,21 @@ class BillViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=False, methods=['GET'])
+    def balance(self, request):
+        return Response(
+            {'balance': Transaction.get_balance(self.request.user)}
+        )
+
 
 class BriefTransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = BriefTransactionSerializer
-    permission_classes = (NoCreation, IsRelatedOrReadOnly,)
+    permission_classes = (
+        NoCreation,
+        IsRelatedOrReadOnly,
+        IsAuthenticated,
+    )
 
     def get_queryset(self):
         return Transaction.get_waitng_tr(self.request.user)
@@ -92,13 +106,31 @@ class BriefTransactionViewSet(viewsets.ModelViewSet):
 class SettleTransactionViewSet(viewsets.ModelViewSet):
     queryset = SettleTransaction.objects.all()
     serializer_class = SettleTrSerializer
-    permission_classes = (NoCreation, IsRelatedOrReadOnly,)
+    permission_classes = (
+        NoCreation,
+        IsRelatedOrReadOnly,
+        IsAuthenticated,
+    )
+
+    @action(detail=True, methods=['GET'], name='Approve')
+    def approve(self, request, pk=None):
+        self.get_object().approve(request.user)
+        return self.retrieve(self.request)
+
+    @action(detail=True, methods=['GET'], name='Reject')
+    def reject(self, request, pk=None):
+        self.get_object().reject(request.user)
+        return self.retrieve(self.request)
 
 
 class SettlementViewSet(viewsets.ModelViewSet):
     queryset = Settlement.objects.all()
     serializer_class = SettleSerializer
-    permission_classes = (IsOwnerOrReadOnly, DelectionProtectedByState,)
+    permission_classes = (
+        IsOwnerOrReadOnly,
+        DelectionProtectedByState,
+        IsAuthenticated,
+    )
 
     @action(detail=True, methods=['GET'], name='waiting_bill')
     def waiting_bill(self, request, pk=None):

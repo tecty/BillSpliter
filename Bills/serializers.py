@@ -103,6 +103,7 @@ class SettleTrSerializer(serializers.ModelSerializer):
     class Meta:
         model = SettleTransaction
         fields = (
+            'id',
             'settle',
             'from_u',
             'to_u',
