@@ -1,6 +1,6 @@
 {
-  "name": "whiteboard_frontend",
-  "short_name": "whiteboard_frontend",
+  "name": "Whiteboard",
+  "short_name": "Whiteboard",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
