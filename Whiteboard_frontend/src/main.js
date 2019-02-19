@@ -1,15 +1,14 @@
 import Vue from "vue";
+import "./plugins/vuetify";
 import App from "./App.vue";
-import router from "./router";
+import router from "@/router";
 import store from "./store";
 import "./registerServiceWorker";
-import ElementUI from "element-ui";
-import "./plugins/element.js";
-// import locale from "element-ui/lib/locale/lang/en";
+import Vuetify from "vuetify";
 
 Vue.config.productionTip = false;
-Vue.use(ElementUI);
 
+Vue.use(Vuetify);
 new Vue({
   router,
   store,
