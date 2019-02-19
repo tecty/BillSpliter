@@ -55,6 +55,9 @@ class BillViewSet(viewsets.ModelViewSet):
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
                 tr = tr_s.save()
+                # if tr is self paid, approve it 
+                if tr.to_u == tr.from_u:
+                    tr.approve()
                 # wrap the transaction creation
                 bill.transaction_set.add(tr)
         except serializers.ValidationError as e:
@@ -65,6 +68,9 @@ class BillViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError({
                 'transactions': 'Error in createing transactions'
             })
+
+                
+        
 
     @action(detail=True, methods=['GET'], name='Approve')
     def approve(self, request, pk=None):

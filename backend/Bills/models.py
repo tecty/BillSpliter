@@ -191,6 +191,7 @@ class Bill(TimestampModel):
 
     def approve(self, request_uesr):
         # the transactions need to approved by request user
+  
         if self.transaction_set.get(from_u=request_uesr).approve():
             self.tr_state_update(request_uesr, APPROVED)
 
