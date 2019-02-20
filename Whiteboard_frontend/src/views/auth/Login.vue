@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     // map the login action from vuex
-    ...mapActions(["loginByCredential"]),
+    ...mapActions(["loginByCredential", "getUserDetail"]),
     login() {
       // pass the user login credential
       this.loginByCredential({
@@ -58,6 +58,7 @@ export default {
         password: this.password
       })
         .then(() => {
+          this.getUserDetail();
           // console.log("imhere")
           if (this.$route.query.redirect) {
             // redirect request from another view

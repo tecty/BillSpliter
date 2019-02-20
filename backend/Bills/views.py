@@ -7,12 +7,26 @@ from .models import PREPARE, SUSPEND
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import NotAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
+
+    """
+    Get method could only get the element of current user
+    """
+    def list(self, request):
+        if request.user and request.user.is_authenticated:
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        # else: not authenticated 
+        # raise not authenticated
+        raise NotAuthenticated()
+    def retrieve(self, request, pk=None):
+        return self.list(request)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):

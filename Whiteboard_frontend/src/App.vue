@@ -43,8 +43,11 @@
       ></v-toolbar-side-icon>
       <span class="title ml-3 mr-5">Whiteboard</span>
       <v-spacer></v-spacer>
-      <v-btn v-if="!username" to="login" flat>Login</v-btn>
-      <v-btn v-else @click="logout" flat>Logout</v-btn>
+      <v-toolbar-items>
+        <v-btn v-if="!username" to="login" flat>Login</v-btn>
+        <userAction v-else />
+        <v-btn v-if="username" @click="logout" flat>Logout</v-btn>
+      </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height class="grey lighten-4">
@@ -56,10 +59,12 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-
+import userAction from "@/components/auth/userAction";
 export default {
   name: "App",
-  components: {},
+  components: {
+    userAction
+  },
   data() {
     return {
       drawer: false,
@@ -82,7 +87,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(["username"])
+    ...mapState({
+      username: state => state.auth.username
+    })
   },
   methods: {
     ...mapActions({
