@@ -10,7 +10,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      fullname: state => state.auth.first_name + state.auth.last_name
+      fullname: state => `${state.auth.first_name}  ${state.auth.last_name}`
     })
   }
 };

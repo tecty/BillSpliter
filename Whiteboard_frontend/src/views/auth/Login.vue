@@ -57,8 +57,8 @@ export default {
         username: this.username,
         password: this.password
       })
+        .then(() => this.getUserDetail())
         .then(() => {
-          this.getUserDetail();
           // console.log("imhere")
           if (this.$route.query.redirect) {
             // redirect request from another view

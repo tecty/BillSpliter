@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getUsername } from "@/utils/auth";
 
 export default {
   state: {
     id: "",
-    username: "",
+    username: getUsername,
     first_name: "",
     last_name: ""
   },
@@ -13,10 +14,13 @@ export default {
       localStorage.setItem("token", token);
       state.token = token;
     },
-    ADD_USER: (state, username) => {
+    ADD_USER: (state, { username, first_name, last_name, id }) => {
       // store the username in localstorage
       localStorage.setItem("username", username);
       state.username = username;
+      state.first_name = first_name;
+      state.last_name = last_name;
+      state.id = id;
     },
     REMOVE_TOKEN_AND_USER: state => {
       // remove the record in local storage
@@ -35,7 +39,7 @@ export default {
       // add this token to store
       // modify the auth type
       commit("ADD_TOKEN", "JWT " + res.data.token);
-      commit("ADD_USER", credential.username);
+      // commit("ADD_USER", credential.username);
       // use this token to do axios request
       axios.defaults.headers.common["Authorization"] = state.token;
       // return back this promise back to support chaining
@@ -57,6 +61,7 @@ export default {
     async getUserDetail({ commit }) {
       commit("API_WAITING");
       let ret = await axios.get("users/");
+      commit("ADD_USER", ret.data);
       commit("API_FINISHED");
       return ret;
     },
