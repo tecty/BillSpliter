@@ -15,9 +15,13 @@
               <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
             </v-flex>
             <v-flex xs6 class="text-xs-right" v-if="item.text">
-              <v-btn small flat :to="item.href" class="grey--text">{{
-                item.text
-              }}</v-btn>
+              <v-btn
+                small
+                flat
+                :to="item.href ? { name: item.href } : null"
+                class="grey--text"
+                >{{ item.text }}</v-btn
+              >
             </v-flex>
           </v-layout>
           <v-divider
@@ -26,7 +30,11 @@
             class="my-3"
             :key="i"
           ></v-divider>
-          <v-list-tile :key="i" v-else :to="item.href">
+          <v-list-tile
+            :key="i"
+            v-else
+            :to="item.href ? { name: item.href } : null"
+          >
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
@@ -72,13 +80,14 @@ export default {
       drawer: false,
       items: [
         // { icon: "touch_app", text: "Reminders", href: "about" },
-        { heading: "Billing System", text: "create", href: "bill/create" },
+        { heading: "Billing System", text: "create", href: "about" },
         { icon: "add", text: "Transactions" },
         { icon: "add", text: "Bills" },
         { icon: "add", text: "Settlement" },
         { divider: true },
         { icon: "settings", text: "Settings" },
         { icon: "chat_bubble", text: "User" },
+        { icon: "chat_bubble", text: "Group", href: "group" },
         { icon: "help", text: "Help" },
         { icon: "phonelink", text: "App downloads" },
         { icon: "keyboard", text: "Keyboard shortcuts" }

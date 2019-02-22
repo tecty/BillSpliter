@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import AppHome from "@/views/Home.vue";
 import { isLogin } from "@/utils/auth";
-
+import group from "./group.js";
 Vue.use(Router);
 
 // main route list
@@ -74,7 +74,7 @@ var routeLists = [
 ];
 
 // acquire the routes sotre in seperate files
-// routeLists.push(...event);
+routeLists.push(...group);
 // routeLists.push(...post);
 // routeLists.push(...profile);
 
