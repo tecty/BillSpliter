@@ -74,7 +74,7 @@ var routeLists = [
 ];
 
 // acquire the routes sotre in seperate files
-routeLists.push(...group);
+routeLists.push(group);
 // routeLists.push(...post);
 // routeLists.push(...profile);
 

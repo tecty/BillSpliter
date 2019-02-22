@@ -1,13 +1,17 @@
 import axios from "axios";
 import { getUsername, getFirstname, getLastname } from "../utils/auth";
 
-export default {
-  state: {
+function initial() {
+  return {
     id: "",
     username: getUsername,
     first_name: getFirstname(),
     last_name: getLastname()
-  },
+  };
+}
+
+export default {
+  state: initial,
   mutations: {
     ADD_TOKEN: (state, token) => {
       // store this token to local storage
@@ -26,14 +30,20 @@ export default {
     },
     REMOVE_TOKEN_AND_USER: state => {
       // remove the record in local storage
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      localStorage.removeItem("password");
+
       // remove the vuex record
       state.token = "";
       state.username = "";
+    },
+    RESET: state => {
+      // remove all the state in localstorage
+      localStorage.clear();
       // remove the axios record
       axios.defaults.headers.common["Authorization"] = null;
+      const s = initial();
+      Object.keys(s).forEach(key => {
+        state[key] = s[key];
+      });
     }
   },
   actions: {
@@ -71,7 +81,7 @@ export default {
     },
     logout({ commit }) {
       // remove the record in vuex
-      commit("REMOVE_TOKEN_AND_USER");
+      commit("CLEAR_ALL");
     }
   }
 };

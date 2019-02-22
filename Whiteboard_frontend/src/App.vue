@@ -47,11 +47,11 @@
         </template>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar color="light-blue darken-2" app clipped-left>
+    <v-toolbar color="light-blue darken-2" app clipped-left tabs>
       <v-toolbar-side-icon
         @click.native="drawer = !drawer"
       ></v-toolbar-side-icon>
-      <span class="title ml-3 mr-5">Whiteboard</span>
+      <v-toolbar-title to="{name:'home'}">Whiteboard</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn v-if="!username" to="login" flat>Login</v-btn>
@@ -60,9 +60,7 @@
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
-      <v-container fluid fill-height class="grey lighten-4">
-        <router-view />
-      </v-container>
+      <router-view />
     </v-content>
   </v-app>
 </template>
@@ -85,7 +83,7 @@ export default {
         { icon: "add", text: "Bills" },
         { icon: "add", text: "Settlement" },
         { divider: true },
-        { icon: "settings", text: "Settings" },
+        { icon: "settings", text: "Settings", href: "about" },
         { icon: "chat_bubble", text: "User" },
         { icon: "chat_bubble", text: "Group", href: "group" },
         { icon: "help", text: "Help" },
@@ -110,3 +108,12 @@ export default {
   }
 };
 </script>
+
+<style>
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 300 !important;
+}
+</style>
