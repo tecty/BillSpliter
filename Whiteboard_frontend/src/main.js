@@ -8,6 +8,11 @@ import "./registerServiceWorker";
 import Vuetify from "vuetify";
 
 Vue.config.productionTip = false;
+// set up some handy filter
+Vue.filter("username", user => {
+  if (user.first_name) return `${user.first_name} ${user.last_name}`;
+  else return user.username;
+});
 
 Vue.use(Vuetify);
 new Vue({

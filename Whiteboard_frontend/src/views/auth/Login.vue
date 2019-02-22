@@ -20,7 +20,7 @@
           required
         />
         <p>
-          New to PartyWhip?
+          New to Whiteboard?
           <router-link :to="{ name: 'register' }">
             Create an account.
           </router-link>

@@ -1,18 +1,9 @@
 <template>
-  <v-data-table :headers="headers" :items="groupList" expand item-key="name">
+  <v-data-table :headers="headers" :items="groupList" item-key="name">
     <template slot="items" slot-scope="props">
       <td>{{ props.item.name }}</td>
-      <td class="text-xs-right">{{ props.item.calories }}</td>
-      <td class="text-xs-right">{{ props.item.fat }}</td>
-      <td class="text-xs-right">{{ props.item.carbs }}</td>
-      <td class="text-xs-right">{{ props.item.protein }}</td>
-      <td class="text-xs-right">{{ props.item.iron }}</td>
-    </template>
-
-    <template slot="expand" slot-scope="props">
-      <v-card flat>
-        <v-card-text>Peek-a-boo!</v-card-text>
-      </v-card>
+      <td class="text-xs-right">{{ props.item.owner.username }}</td>
+      <td class="text-xs-right">{{ props.item.name_list }}</td>
     </template>
   </v-data-table>
 </template>
@@ -24,17 +15,30 @@ export default {
     return {
       headers: [
         {
-          text: "Dessert (100g serving)",
+          text: "Name",
           align: "left",
           sortable: false,
           value: "name"
+        },
+        {
+          text: "owner",
+          align: "right",
+          sortable: false,
+          value: "name_list"
+        },
+        {
+          text: "Users",
+          align: "right",
+          sortable: false,
+          value: "name_list"
         }
       ]
     };
   },
   computed: {
-    ...mapState(["groupList"])
+    ...mapState({ groupList: state => state.group.groupList })
   },
+  methods: {},
   mounted() {
     this.$store.dispatch("refresh_grouplist");
   }
