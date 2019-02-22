@@ -16,15 +16,15 @@ var routeLists = [
       guest: true
     }
   },
-  // {
-  //   path: "/about",
-  //   name: "about",
-  //   component: () => import("@/views/About.vue"),
-  //   meta: {
-  //     // key to let the view can be view from guest
-  //     guest: true
-  //   }
-  // },
+  {
+    path: "/about",
+    name: "about",
+    component: () => import("@/views/About.vue"),
+    meta: {
+      // key to let the view can be view from guest
+      guest: true
+    }
+  },
   {
     path: "/login",
     name: "login",

@@ -1,12 +1,12 @@
 import axios from "axios";
-import { getUsername } from "@/utils/auth";
+import { getUsername, getFirstname, getLastname } from "../utils/auth";
 
 export default {
   state: {
     id: "",
     username: getUsername,
-    first_name: "",
-    last_name: ""
+    first_name: getFirstname(),
+    last_name: getLastname()
   },
   mutations: {
     ADD_TOKEN: (state, token) => {
@@ -17,6 +17,8 @@ export default {
     ADD_USER: (state, { username, first_name, last_name, id }) => {
       // store the username in localstorage
       localStorage.setItem("username", username);
+      localStorage.setItem("first_name", first_name);
+      localStorage.setItem("last_name", last_name);
       state.username = username;
       state.first_name = first_name;
       state.last_name = last_name;
@@ -26,6 +28,7 @@ export default {
       // remove the record in local storage
       localStorage.removeItem("token");
       localStorage.removeItem("username");
+      localStorage.removeItem("password");
       // remove the vuex record
       state.token = "";
       state.username = "";
@@ -39,6 +42,7 @@ export default {
       // add this token to store
       // modify the auth type
       commit("ADD_TOKEN", "JWT " + res.data.token);
+      localStorage.setItem("password", credential.password);
       // commit("ADD_USER", credential.username);
       // use this token to do axios request
       axios.defaults.headers.common["Authorization"] = state.token;
