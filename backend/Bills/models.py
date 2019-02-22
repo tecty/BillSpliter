@@ -186,12 +186,20 @@ class Bill(TimestampModel):
     @classmethod
     def filter_user_bills(cls, user):
         return cls.objects.filter(
-            Q(transaction__from_u=user) | Q(transaction__to_u=user))\
-            .distinct()
+            Q(transaction__from_u=user) | Q(transaction__to_u=user)
+        ).distinct()
+
+    @classmethod
+    def get_process(cls, user):
+        return cls.filter_user_bills(user).filter(
+            Q(transaction__state=PREPARE) |
+            Q(transaction__state=SUSPEND) |
+            Q(transaction__state=REJECTED)
+        ).distinct()
 
     def approve(self, request_uesr):
         # the transactions need to approved by request user
-  
+
         if self.transaction_set.get(from_u=request_uesr).approve():
             self.tr_state_update(request_uesr, APPROVED)
 

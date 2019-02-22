@@ -3,6 +3,7 @@ import Router from "vue-router";
 import AppHome from "@/views/Home.vue";
 import { isLogin } from "@/utils/auth";
 import group from "./group.js";
+import bill from "./bill.js";
 Vue.use(Router);
 
 // main route list
@@ -74,7 +75,8 @@ var routeLists = [
 ];
 
 // acquire the routes sotre in seperate files
-routeLists.push(group);
+routeLists.push(...group);
+routeLists.push(...bill);
 // routeLists.push(...post);
 // routeLists.push(...profile);
 

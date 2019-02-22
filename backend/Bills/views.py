@@ -18,13 +18,15 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     Get method could only get the element of current user
     """
+
     def list(self, request):
         if request.user and request.user.is_authenticated:
             serializer = UserSerializer(request.user)
             return Response(serializer.data)
-        # else: not authenticated 
+        # else: not authenticated
         # raise not authenticated
         raise NotAuthenticated()
+
     def retrieve(self, request, pk=None):
         return self.list(request)
 
@@ -69,7 +71,7 @@ class BillViewSet(viewsets.ModelViewSet):
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
                 tr = tr_s.save()
-                # if tr is self paid, approve it 
+                # if tr is self paid, approve it
                 if tr.to_u == tr.from_u:
                     tr.approve()
                 # wrap the transaction creation
@@ -82,9 +84,6 @@ class BillViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError({
                 'transactions': 'Error in createing transactions'
             })
-
-                
-        
 
     @action(detail=True, methods=['GET'], name='Approve')
     def approve(self, request, pk=None):
@@ -107,6 +106,13 @@ class BillViewSet(viewsets.ModelViewSet):
     def balance(self, request):
         return Response(
             {'balance': Transaction.get_balance(self.request.user)}
+        )
+
+    @action(detail=False, methods=['GET'])
+    def processing(self, request):
+        s = BillSerializer(Bill.get_process(self.request.user))
+        return Response(
+            s.data
         )
 
 

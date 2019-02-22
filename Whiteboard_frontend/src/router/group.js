@@ -1,13 +1,12 @@
-import index from "@/views/group/Index.vue";
-export default {
-  path: "/group",
-  name: "group",
-  component: index,
-  children: [
-    {
-      path: "create",
-      name: "create",
-      component: () => import("@/views/group/Create.vue")
-    }
-  ]
-};
+export default [
+  {
+    path: "/group",
+    name: "group",
+    component: () => import("@/views/group/Index.vue")
+  },
+  {
+    path: "/group/create",
+    name: "groupCreate",
+    component: () => import("@/views/group/Create.vue")
+  }
+];

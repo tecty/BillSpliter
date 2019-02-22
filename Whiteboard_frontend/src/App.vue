@@ -78,9 +78,9 @@ export default {
       drawer: false,
       items: [
         // { icon: "touch_app", text: "Reminders", href: "about" },
-        { heading: "Billing System", text: "create", href: "about" },
+        { heading: "Billing System", text: "create", href: "billCreate" },
         { icon: "add", text: "Transactions" },
-        { icon: "add", text: "Bills" },
+        { icon: "add", text: "Bills", href: "bill" },
         { icon: "add", text: "Settlement" },
         { divider: true },
         { icon: "settings", text: "Settings", href: "about" },
