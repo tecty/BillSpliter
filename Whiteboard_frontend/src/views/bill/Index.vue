@@ -2,7 +2,9 @@
   <v-container>
     <h1>
       Bills
-      <v-btn color="success">Cretae</v-btn>
+      <v-btn color="success" flat icon :to="{ name: 'billCreate' }">
+        <v-icon>add</v-icon>
+      </v-btn>
     </h1>
     <BillList :bill="curr_bill" loading />
   </v-container>

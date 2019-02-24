@@ -25,7 +25,7 @@ export default {
     RESET: state => (state.groupList = [])
   },
   actions: {
-    async refresh_grouplist({ state, commit }) {
+    async require_grouplist({ state, commit }) {
       if (state.groupList.length == 0) {
         const res = await axios.get("groups/");
         commit("SET_GROUP_LIST", res.data);
