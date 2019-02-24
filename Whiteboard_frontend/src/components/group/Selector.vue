@@ -1,14 +1,13 @@
 <template>
-  <v-flex xs12 sm6 md4 lg3 d-flex>
-    <v-select
-      v-model="value"
-      :items="groupList"
-      item-value="id"
-      item-text="name"
-      label="Group"
-      @change="declearChange"
-    />
-  </v-flex>
+  <v-select
+    v-model="value"
+    :items="groupList"
+    item-value="id"
+    item-text="name"
+    label="Group"
+    return-object
+    @change="declearChange"
+  />
 </template>
 
 <script>
