@@ -28,7 +28,7 @@ export default {
     async refresh_grouplist({ state, commit }) {
       if (state.groupList.length == 0) {
         const res = await axios.get("groups/");
-        commit("SET_GROUP_LIST", res.data.results);
+        commit("SET_GROUP_LIST", res.data);
         return res;
       }
       return Promise().resolve();

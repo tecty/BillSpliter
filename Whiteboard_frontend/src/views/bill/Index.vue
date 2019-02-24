@@ -20,7 +20,7 @@ export default {
     BillList
   },
   mounted() {
-    this.$store.dispatch("get_curr_bill").then(res => {
+    this.$store.dispatch("bill/get_curr_bill").then(res => {
       this.curr_bill = res.data;
       this.curr_bill_loading = false;
     });

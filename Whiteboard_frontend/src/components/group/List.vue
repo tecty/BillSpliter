@@ -40,7 +40,7 @@ export default {
   },
   methods: {},
   mounted() {
-    this.$store.dispatch("refresh_grouplist");
+    this.$store.dispatch("group/refresh_grouplist");
   }
 };
 </script>

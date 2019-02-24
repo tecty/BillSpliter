@@ -67,7 +67,7 @@ export default {
         password: user.password
       });
     },
-    async editUser({ commit }, user) {
+    async editUser(state, user) {
       let ret = await axios.put(`users/${user.id}/`, user);
       return ret;
     },

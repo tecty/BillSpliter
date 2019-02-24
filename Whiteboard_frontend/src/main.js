@@ -14,6 +14,19 @@ Vue.filter("username", user => {
   else return user.username;
 });
 
+Vue.filter("showState", state => {
+  let map = {
+    PR: "Prepare",
+    AP: "Approved",
+    RJ: "Rejected",
+    CS: "Concencus",
+    CD: "Commited",
+    FN: "Finish",
+    SP: "Suspend"
+  };
+  return map[state];
+});
+
 Vue.use(Vuetify);
 new Vue({
   router,
