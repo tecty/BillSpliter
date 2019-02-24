@@ -6,7 +6,7 @@ export default [
   },
   {
     path: "/bills/:id",
-    name: "billCreate",
+    name: "billDetail",
     component: () => import("@/views/bill/Detail.vue")
   },
   {

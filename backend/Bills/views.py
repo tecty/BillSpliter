@@ -52,7 +52,8 @@ class BillViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        return Bill.filter_user_bills(self.request.user)
+        return Bill.filter_user_bills(self.request.user)\
+            .exclude(transaction__state=FINISH).distinct()
 
     def perform_create(self, serialiizer):
         bill = serialiizer.save()
@@ -108,13 +109,6 @@ class BillViewSet(viewsets.ModelViewSet):
             {'balance': Transaction.get_balance(self.request.user)}
         )
 
-    @action(detail=False, methods=['GET'])
-    def processing(self, request):
-        s = BillSerializer(Bill.get_process(self.request.user))
-        return Response(
-            s.data
-        )
-
 
 class BriefTransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
@@ -126,7 +120,7 @@ class BriefTransactionViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        return Transaction.get_waitng_tr(self.request.user)
+        return Transaction.filter_user(self.request.user)
 
 
 class SettleTransactionViewSet(viewsets.ModelViewSet):

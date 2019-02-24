@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import auth from "./auth.js";
 import group from "./group.js";
+import bill from "./bill.js";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -20,15 +21,18 @@ export default new Vuex.Store({
     },
     API_READY: state => {
       state.api_state = "READY";
-    },
-    CLEAR_ALL: ({ commit }) => {
+    }
+  },
+  actions: {
+    clear_all: ({ commit }) => {
+      // console.log(dispatch)
       commit("group/RESET");
       commit("auth/RESET");
     }
   },
-  actions: {},
   modules: {
     auth,
-    group
+    group,
+    bill
   }
 });

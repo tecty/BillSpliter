@@ -4,13 +4,14 @@ import { getUsername, getFirstname, getLastname } from "../utils/auth";
 function initial() {
   return {
     id: "",
-    username: getUsername,
+    username: getUsername(),
     first_name: getFirstname(),
     last_name: getLastname()
   };
 }
 
 export default {
+  namespaced: true,
   state: initial,
   mutations: {
     ADD_TOKEN: (state, token) => {
@@ -67,16 +68,12 @@ export default {
       });
     },
     async editUser({ commit }, user) {
-      commit("API_WAITING");
       let ret = await axios.put(`users/${user.id}/`, user);
-      commit("API_FINISHED");
       return ret;
     },
     async getUserDetail({ commit }) {
-      commit("API_WAITING");
       let ret = await axios.get("users/");
       commit("ADD_USER", ret.data);
-      commit("API_FINISHED");
       return ret;
     },
     logout({ commit }) {

@@ -9,11 +9,13 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 export default {
   data() {
     return {
-      props: ["type"],
+      props: {
+        bill: Array,
+        loading: Boolean
+      },
       headers: [
         {
           text: "Name",
@@ -36,16 +38,6 @@ export default {
       ]
     };
   },
-  computed: {
-    ...mapState({ groupList: state => state.group.groupList })
-  },
-  methods: {},
-  mounted() {
-    if (this.$attrs.type == "processing") {
-      this.$store.dispatch("get_processing_bill");
-    } else if (this.$attrs.type == "related") {
-      this.$store.dispatch("refresh_grouplist");
-    }
-  }
+  methods: {}
 };
 </script>

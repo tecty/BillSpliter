@@ -21,9 +21,9 @@
         />
         <p>
           New to Whiteboard?
-          <router-link :to="{ name: 'register' }">
-            Create an account.
-          </router-link>
+          <router-link :to="{ name: 'register' }"
+            >Create an account.</router-link
+          >
         </p>
         <p>{{ error }}</p>
         <v-btn type="submit">Login</v-btn>
@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     // map the login action from vuex
-    ...mapActions(["loginByCredential", "getUserDetail"]),
+    ...mapActions("auth", ["loginByCredential", "getUserDetail"]),
     login() {
       // pass the user login credential
       this.loginByCredential({

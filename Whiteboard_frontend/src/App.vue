@@ -39,9 +39,9 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title class="grey--text">
-                {{ item.text }}
-              </v-list-tile-title>
+              <v-list-tile-title class="grey--text">{{
+                item.text
+              }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </template>
@@ -99,7 +99,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      logoutInVuex: "logout"
+      logoutInVuex: "clear_all"
     }),
     logout() {
       this.logoutInVuex();

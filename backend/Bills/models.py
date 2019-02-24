@@ -193,6 +193,7 @@ class Bill(TimestampModel):
     def get_process(cls, user):
         return cls.filter_user_bills(user).filter(
             Q(transaction__state=PREPARE) |
+            Q(transaction__state=APPROVED) |
             Q(transaction__state=SUSPEND) |
             Q(transaction__state=REJECTED)
         ).distinct()
@@ -356,13 +357,17 @@ class Transaction(StatefulTransactionModel):
         return cls.objects.filter(bill__settlement=settle)
 
     @classmethod
+    def filter_user(cls, user):
+        return cls.objects.filter(
+            Q(to_u=user) | Q(from_u=user)
+        )
+
+    @classmethod
     def get_waitng_tr(cls, user):
         """
         Find all the waiting decition trancation by this user
         """
-        return cls.objects.filter(
-            Q(to_u=user) | Q(from_u=user)
-        ).filter(state=PREPARE)
+        return cls.filter_user(user).filter(state=PREPARE)
 
 
 class Settlement(TimestampModel):
