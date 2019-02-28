@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MDU1OTk2NywiZW1haWwiOiIifQ.dQ90LHE27u05DmzsT7sgj_V5JcHB9iIdLr0qG45h3Y8
+@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MTM1NDYzOSwiZW1haWwiOiIifQ.5c9Z2AznyTgWB0KQys0xEqg6Mht1jKKW2Nk7cWEKTjs
 
 
 
@@ -35,13 +35,13 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "name":"test2"
+    "name":"test0"
 }
 
 ###
 # group add user and delete user 
 
-POST {{baseUrl}}groups/2/add_user/ HTTP/1.1
+POST {{baseUrl}}groups/1/add_user/ HTTP/1.1
 Content-Type: application/json
 Authorization: {{auth}}
 

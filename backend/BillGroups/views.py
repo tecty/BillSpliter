@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from Bills.permissions import IsOwnerOrReadOnly
+from Bills.permissions import IsOwnerOrReadOnly, IsAuthenticated
 from rest_framework.decorators import action
 from .serializers import *
 # Create your views here.
@@ -9,7 +9,12 @@ from .serializers import *
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = BillGroups.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsOwnerOrReadOnly, IsAuthenticated)
+
+    def get_queryset(self):
+        return BillGroups.objects.filter(
+            user = self.request.user
+        )
 
     def perform_create(self, serializer):
         # save the object and add the

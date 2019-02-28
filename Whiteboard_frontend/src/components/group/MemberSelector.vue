@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       // select all feture
-      selected: value,
+      selected: [],
       selectAll: false,
       isIndeterminate: true
     };
@@ -45,11 +45,11 @@ export default {
       } else {
         this.selected = [];
       }
-      console.log(this.selected);
+      // console.log(this.selected);
       this.declearChange();
     },
     declearChange() {
-      this.$emit("input", this.selected);
+      this.$emit("update:value", this.selected);
     }
   },
   computed: {},
