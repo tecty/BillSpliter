@@ -1,12 +1,13 @@
 "use strict";
 
+import { getToken } from "@/utils/auth.js";
 import Vue from "vue";
 import axios from "axios";
 
 // Full config:  https://github.com/axios/axios#request-config
 axios.defaults.baseURL = "http://localhost:8000/v1/";
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+axios.defaults.headers.common["Authorization"] = getToken();
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 let config = {

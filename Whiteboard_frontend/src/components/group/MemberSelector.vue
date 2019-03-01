@@ -5,6 +5,7 @@
         label="Selected All"
         v-model="selectAll"
         @change="doSelectAll"
+        :indeterminate="isIndeterminate"
       ></v-checkbox>
     </v-flex>
     <v-flex xs4 md3 lg2 v-for="user in group.users" :key="user.id">
@@ -24,35 +25,42 @@ export default {
   data() {
     return {
       // select all feture
-      selected: [],
-      selectAll: false,
-      isIndeterminate: true
+      selected: this.value,
+      selectAll: false
+      // isIndeterminate: true
     };
   },
   methods: {
-    // handleCheckAllChange(val) {
-    //   // this.value = val ? this.group.users.map(el => el.id) : [];
-    //   this.isIndeterminate = false;
-    //   this.declearChange();
-    // },
-    // handleCheckedMemberChange(value) {
-    //   console.log(value);
-    //   this.declearChange();
-    // },
     doSelectAll(val) {
       if (val) {
         this.selected = this.group.users.map(el => el.id);
       } else {
         this.selected = [];
       }
+      // this.isIndeterminate = false;
       // console.log(this.selected);
       this.declearChange();
     },
     declearChange() {
-      this.$emit("update:value", this.selected);
+      if (this.group.users.length == this.selected.length) {
+        this.selectAll = true;
+      } else {
+        this.selectAll = false;
+      }
+      this.$emit("input", this.selected);
+      // this.$emit("update:value", this.selected);
     }
   },
-  computed: {},
+  computed: {
+    isIndeterminate() {
+      // console.log(this.group.users);
+      // console.log(this.selected);
+      return !(
+        this.group.users.length == this.selected.length ||
+        this.selected.length == 0
+      );
+    }
+  },
   mounted() {}
 };
 </script>
