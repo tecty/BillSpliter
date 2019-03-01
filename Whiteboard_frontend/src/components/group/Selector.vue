@@ -1,6 +1,6 @@
 <template>
   <v-select
-    v-model="value"
+    v-model="group"
     :items="groupList"
     item-value="id"
     item-text="name"
@@ -15,11 +15,13 @@ import { mapState } from "vuex";
 export default {
   props: ["value"],
   data() {
-    return {};
+    return {
+      group: undefined
+    };
   },
   methods: {
     declearChange() {
-      this.$emit("update:value", this.value);
+      this.$emit("input", this.group);
     }
   },
   computed: {

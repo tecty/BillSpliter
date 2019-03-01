@@ -2,7 +2,7 @@
   <v-layout row wrap>
     <v-flex xs12>
       <v-checkbox
-        label="Selected All"
+        label="Select All"
         v-model="selectAll"
         @change="doSelectAll"
         :indeterminate="isIndeterminate"
@@ -27,7 +27,6 @@ export default {
       // select all feture
       selected: this.value,
       selectAll: false
-      // isIndeterminate: true
     };
   },
   methods: {
@@ -37,8 +36,6 @@ export default {
       } else {
         this.selected = [];
       }
-      // this.isIndeterminate = false;
-      // console.log(this.selected);
       this.declearChange();
     },
     declearChange() {
@@ -53,8 +50,6 @@ export default {
   },
   computed: {
     isIndeterminate() {
-      // console.log(this.group.users);
-      // console.log(this.selected);
       return !(
         this.group.users.length == this.selected.length ||
         this.selected.length == 0
