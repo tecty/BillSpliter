@@ -3,7 +3,7 @@ import { getUsername, getFirstname, getLastname } from "../utils/auth";
 
 function initial() {
   return {
-    id: "",
+    id: localStorage.getItem("uid"),
     username: getUsername(),
     first_name: getFirstname(),
     last_name: getLastname()
@@ -24,6 +24,7 @@ export default {
       localStorage.setItem("username", username);
       localStorage.setItem("first_name", first_name);
       localStorage.setItem("last_name", last_name);
+      localStorage.setItem("uid", id);
       state.username = username;
       state.first_name = first_name;
       state.last_name = last_name;
