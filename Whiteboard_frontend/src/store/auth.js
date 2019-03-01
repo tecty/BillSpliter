@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getUsername, getFirstname, getLastname } from "../utils/auth";
+import Router from "vue-router";
 
 function initial() {
   return {
@@ -49,15 +50,27 @@ export default {
     }
   },
   actions: {
-    async loginByCredential({ commit, state }, credential) {
-      const res = await axios.post("jwt/", credential);
-      // add this token to store
-      // modify the auth type
-      commit("ADD_TOKEN", "JWT " + res.data.token);
-      localStorage.setItem("password", credential.password);
-      // commit("ADD_USER", credential.username);
-      // use this token to do axios request
-      axios.defaults.headers.common["Authorization"] = state.token;
+    async loginByCredential({ commit, state, dispatch }, credential) {
+      let res;
+      try {
+        res = await axios.post("jwt/", credential);
+        // add this token to store
+        // modify the auth type
+        commit("ADD_TOKEN", "JWT " + res.data.token);
+        localStorage.setItem("password", credential.password);
+        // commit("ADD_USER", credential.username);
+        // use this token to do axios request
+        axios.defaults.headers.common["Authorization"] = state.token;
+        // refresh token by this method
+        setTimeout(() => {
+          dispatch("auth/loginByCredential", credential);
+        }, 270000);
+      } catch (error) {
+        // logout
+        dispatch("clear_out");
+        Router.push("/login");
+      }
+
       // return back this promise back to support chaining
       return res;
     },
@@ -76,10 +89,6 @@ export default {
       let ret = await axios.get("users/");
       commit("ADD_USER", ret.data);
       return ret;
-    },
-    logout({ commit }) {
-      // remove the record in vuex
-      commit("CLEAR_ALL");
     }
   }
 };
