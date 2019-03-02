@@ -3,7 +3,13 @@
     <v-flex md10 offset-md1 xs12 offset-xs0 lg6 offset-lg3>
       <h1>Login</h1>
       <v-form v-model="valid" @submit.prevent="login">
-        <v-text-field v-model="username" label="Username" required autofocus autocomplete/>
+        <v-text-field
+          v-model="username"
+          label="Username"
+          required
+          autofocus
+          autocomplete
+        />
         <v-text-field
           v-model="password"
           :type="show ? 'text' : 'password'"
@@ -13,8 +19,11 @@
           @click:append="show = !show"
           required
         />
-        <p>New to Whiteboard?
-          <router-link :to="{ name: 'register' }">Create an account.</router-link>
+        <p>
+          New to Whiteboard?
+          <router-link :to="{ name: 'register' }"
+            >Create an account.</router-link
+          >
         </p>
         <p>{{ error }}</p>
         <v-btn type="submit">Login</v-btn>

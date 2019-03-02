@@ -40,6 +40,11 @@ Vue.filter("showDateTime", s => {
   return moment(s).format("YYYY MMM DD,h:mm");
 });
 
+Vue.filter("trAmount", tr => {
+  if (tr.from_u == localStorage.getItem("uid")) return `$-${tr.amount}`;
+  else return `$${tr.amount}`;
+});
+
 Vue.use(Vuetify);
 new Vue({
   router,

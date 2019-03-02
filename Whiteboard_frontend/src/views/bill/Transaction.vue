@@ -4,7 +4,7 @@
     <div v-else>
       <h1>
         Transactions
-        <v-btn color="success" flat>
+        <v-btn color="success" flat @click="approve_all">
           <v-icon>done_all</v-icon>Approve All
         </v-btn>
       </h1>
@@ -26,7 +26,7 @@
           <td class="text-xs-right">
             {{ props.item.to_u | fullnameById(group) }}
           </td>
-          <td class="text-xs-right">$ {{ props.item.amount }}</td>
+          <td class="text-xs-right">${{ props.item.amount }}</td>
           <td class="text-xs-left">
             <v-btn
               color="success"
@@ -49,10 +49,38 @@
           </td>
         </template>
       </v-data-table>
-
-      <v-btn color="success" flat> <v-icon>done</v-icon>Approve </v-btn>
-      <v-btn color="error" flat> <v-icon>not_interested</v-icon>Reject </v-btn>
       <h2>Concencused Transactions</h2>
+      <v-data-table
+        :headers="concencusHeader"
+        :items="concencus"
+        item-key="name"
+        hide-actions
+      >
+        <template slot="items" slot-scope="props">
+          <td class="text-xs-left">
+            {{ props.item.from_u | fullnameById(group) }}
+          </td>
+          <td class="text-xs-left">
+            {{ props.item.to_u | fullnameById(group) }}
+          </td>
+          <td class="text-xs-right">{{ props.item | trAmount }}</td>
+          <router-link
+            tag="td"
+            class="text-xs-right"
+            :to="{ name: 'billDetail', params: { id: props.item.bill } }"
+          >
+            {{ props.item.title }}
+            <br />
+            <span class="text--secondary">{{ props.item.description }}</span>
+          </router-link>
+        </template>
+        <template v-slot:footer>
+          <td></td>
+          <td class="text-xs-left">Balance</td>
+          <td class="text-xs-right">${{ balance }}</td>
+          <td></td>
+        </template>
+      </v-data-table>
     </div>
   </v-container>
 </template>
@@ -67,6 +95,7 @@ export default {
       ongoing: [],
       concencus: [],
       waiting: true,
+      balance: 0,
       headers: [
         {
           text: "Bill",
@@ -92,10 +121,35 @@ export default {
           sortable: false
           // value: "state"
         }
+      ],
+      concencusHeader: [
+        {
+          text: "From",
+          align: "left",
+          sortable: false
+        },
+        {
+          text: "To",
+          align: "left",
+          sortable: false
+        },
+        {
+          text: "Amount",
+          align: "right",
+          sortable: true,
+          value: "amount"
+        },
+        {
+          text: "Bill",
+          align: "right",
+          sortable: false,
+          value: "name"
+        }
       ]
     };
   },
   computed: {
+    ...mapState("auth", { uid: state => state.id }),
     ...mapState({
       group: state => {
         let ret = state.group.groupList.reduce(function(acc, curr) {
@@ -106,27 +160,45 @@ export default {
     })
   },
   methods: {
-    ...mapActions("bill", ["b_approve", "b_reject"]),
+    ...mapActions("bill", ["b_approve", "b_reject", "b_approve_all"]),
     removeOngoingById(id) {
       let index = this.ongoing.findIndex(el => el.id == id);
       this.ongoing.splice(index, 1);
     },
     async approve(id) {
       await this.b_approve(id);
-      this.removeOngoingById(id);
+      this.refreshData();
     },
     async reject(id) {
       await this.b_reject(id);
-      this.removeOngoingById(id);
+      this.refreshData();
+    },
+    async approve_all() {
+      await this.b_approve_all();
+
+      this.refreshData();
+    },
+    async refreshData() {
+      let ret = await Promise.all([
+        axios.get("brief_tr"),
+        axios.get("bills/balance/")
+      ]);
+      // assign the balances
+      this.balance = ret[1].data.balance;
+      // assign the trs
+      this.waiting = false;
+      this.ongoing = ret[0].data.filter(
+        el => el.from_u == this.uid && el.state == "PR"
+      );
+      this.concencus = ret[0].data.filter(el => el.state == "CS");
+      return ret;
     }
   },
-  async mounted() {
-    this.$store.dispatch("group/require_grouplist");
-
-    let ret = await axios.get("brief_tr");
-    this.waiting = false;
-    this.ongoing = ret.data.filter(el => el.state == "PR");
-    this.concencus = ret.data.filter(el => el.state == "CS");
+  mounted() {
+    Promise.all([
+      this.$store.dispatch("group/require_grouplist"),
+      this.refreshData()
+    ]);
   }
 };
 </script>
