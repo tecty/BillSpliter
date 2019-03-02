@@ -31,7 +31,7 @@ export default {
         commit("SET_GROUP_LIST", res.data);
         return res;
       }
-      return Promise().resolve();
+      return new Promise().resolve();
     }
   }
 };

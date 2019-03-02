@@ -7,19 +7,24 @@
           <v-text-field label="Title" v-model="title"></v-text-field>
         </v-flex>
         <v-flex xs12 md6 lg3 pa-1>
-          <GroupSelector v-model="group"/>
+          <GroupSelector v-model="group" />
         </v-flex>
       </v-layout>
       <v-layout row wrap>
         <v-flex grow xs12 pa-1>
-          <v-text-field label="Description" v-model="description"/>
+          <v-text-field label="Description" v-model="description" />
         </v-flex>
       </v-layout>
       <!-- select phople in the group -->
-      <MemberSelector v-if="group" :group="group" v-model="userSelected"/>
+      <MemberSelector v-if="group" :group="group" v-model="userSelected" />
       <v-layout row wrap>
         <v-flex grow xs12 md6 lg4 pa-1>
-          <v-text-field label="Total" v-model="total" prefix="$" placeholder="xx.xx"/>
+          <v-text-field
+            label="Total"
+            v-model="total"
+            prefix="$"
+            placeholder="xx.xx"
+          />
         </v-flex>
       </v-layout>
       <v-layout row wrap>
@@ -63,9 +68,6 @@ export default {
   components: {
     GroupSelector,
     MemberSelector
-  },
-  mounted() {
-    this.$store.dispatch("group/require_grouplist");
   }
 };
 </script>

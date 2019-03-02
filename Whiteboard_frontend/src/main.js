@@ -27,6 +27,13 @@ Vue.filter("showState", state => {
   return map[state];
 });
 
+Vue.filter("fullnameById", (id, group) => {
+  // find the user
+  let user = group.users.find(el => el.id == id);
+  // parse it to have it's full name
+  if (user.first_name) return `${user.first_name} ${user.last_name}`;
+  else return user.username;
+});
 Vue.use(Vuetify);
 new Vue({
   router,
