@@ -61,16 +61,12 @@ export default {
         // commit("ADD_USER", credential.username);
         // use this token to do axios request
         axios.defaults.headers.common["Authorization"] = state.token;
-        // refresh token by this method
-        setTimeout(() => {
-          dispatch("auth/loginByCredential", credential);
-        }, 270000);
       } catch (error) {
         // logout
         dispatch("clear_out");
         Router.push("/login");
       }
-
+      setTimeout(refreshToken, 1000);
       // return back this promise back to support chaining
       return res;
     },
@@ -92,3 +88,18 @@ export default {
     }
   }
 };
+
+export async function refreshToken() {
+  // refresh token by this method
+  if (localStorage.getItem("username")) {
+    let ret = await axios.post("jwt/", {
+      username: localStorage.getItem("username"),
+      password: localStorage.getItem("password")
+    });
+    axios.defaults.headers.common["Authorization"] = `JWT ${ret.data.token}`;
+
+    setTimeout(() => refreshToken(), 270000);
+  }
+}
+
+refreshToken();

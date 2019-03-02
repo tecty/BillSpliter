@@ -39,9 +39,9 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title class="grey--text">
-                {{ item.text }}
-              </v-list-tile-title>
+              <v-list-tile-title class="grey--text">{{
+                item.text
+              }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </template>
@@ -79,7 +79,7 @@ export default {
       items: [
         // { icon: "touch_app", text: "Reminders", href: "about" },
         { heading: "Billing System", text: "create", href: "billCreate" },
-        { icon: "add", text: "Transactions" },
+        { icon: "add", text: "Transactions", href: "transaction" },
         { icon: "add", text: "Bills", href: "bill" },
         { icon: "add", text: "Settlement" },
         { divider: true },

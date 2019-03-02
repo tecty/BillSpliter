@@ -13,5 +13,10 @@ export default [
     path: "/bills/:id",
     name: "billDetail",
     component: () => import("@/views/bill/Detail.vue")
+  },
+  {
+    path: "/transaction",
+    name: "transaction",
+    component: () => import("@/views/bill/Transaction.vue")
   }
 ];

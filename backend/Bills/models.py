@@ -377,7 +377,7 @@ class Transaction(StatefulTransactionModel):
     @classmethod
     def filter_user(cls, user):
         return cls.objects.filter(
-            Q(to_u=user) | Q(from_u=user)
+            from_u=user
         )
 
     @classmethod

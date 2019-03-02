@@ -1,20 +1,15 @@
 <template>
   <v-data-table :headers="headers" :items="bill" item-key="name">
     <template slot="items" slot-scope="props">
-      <td>{{ props.item.title }}</td>
-      <td class="text-xs-left">{{ props.item.description }}</td>
-      <td class="text-xs-left">{{ props.item.owner.username }}</td>
-      <td class="text-xs-center">{{ props.item.state | showState }}</td>
-      <td class="text-xs-right">
-        <v-btn
-          color="success"
-          flat
-          icon
-          :to="{ name: 'billDetail', params: { id: props.item.id } }"
-        >
-          <v-icon>send</v-icon>
-        </v-btn>
-      </td>
+      <router-link
+        tag="tr"
+        :to="{ name: 'billDetail', params: { id: props.item.id } }"
+      >
+        <td>{{ props.item.title }}</td>
+        <td class="text-xs-left">{{ props.item.description }}</td>
+        <td class="text-xs-right">{{ props.item.owner | username }}</td>
+        <td class="text-xs-right">{{ props.item.state | showState }}</td>
+      </router-link>
     </template>
   </v-data-table>
 </template>
@@ -41,19 +36,13 @@ export default {
         },
         {
           text: "Owner",
-          align: "left",
+          align: "right",
           sortable: false
         },
         {
           text: "State",
-          align: "center",
-          sortable: true,
-          value: "state"
-        },
-        {
-          text: "Action",
           align: "right",
-          sortable: false,
+          sortable: true,
           value: "state"
         }
       ]
