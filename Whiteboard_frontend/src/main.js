@@ -1,3 +1,4 @@
+import moment from "moment";
 import Vue from "vue";
 import "./plugins/axios";
 import "./plugins/vuetify";
@@ -34,6 +35,11 @@ Vue.filter("fullnameById", (id, group) => {
   if (user.first_name) return `${user.first_name} ${user.last_name}`;
   else return user.username;
 });
+
+Vue.filter("showDateTime", s => {
+  return moment(s).format("YYYY MMM DD,h:mm");
+});
+
 Vue.use(Vuetify);
 new Vue({
   router,

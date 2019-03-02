@@ -96,6 +96,11 @@ class BillViewSet(viewsets.ModelViewSet):
         self.get_object().reject(request.user)
         return self.retrieve(self.request)
 
+    @action(detail=True, methods=['GET'], name='Resume')
+    def resume(self, request, pk=None):
+        self.get_object().resume(request.user)
+        return self.retrieve(self.request)
+
     @action(detail=False, methods=['GET'], name='Approve_all')
     def approve_all(self, request):
         Bill.approve_all(request.user)

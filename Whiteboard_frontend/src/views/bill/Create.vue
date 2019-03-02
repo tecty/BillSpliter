@@ -62,7 +62,7 @@ export default {
         }))
       });
       // success return
-      this.$router.push({ name: "billDetail", parms: { id: ret.data.id } });
+      this.$router.push({ name: "billDetail", params: { id: ret.data.id } });
     }
   },
   components: {

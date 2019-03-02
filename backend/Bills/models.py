@@ -205,9 +205,15 @@ class Bill(TimestampModel):
             self.tr_state_update(request_uesr, APPROVED)
 
     def reject(self, request_uesr):
-        if self.transaction_set.get(
-                from_u=request_uesr
-        ).reject():
+        myTr = self.transaction_set.get(
+            from_u=request_uesr
+        )
+        if request_uesr == self.owner:
+            print("force reject now")
+            ret = myTr.force_reject()
+        else:
+            ret = myTr.reject()
+        if ret:
             self.tr_state_update(request_uesr, REJECTED)
 
     def resume(self, request_user):
@@ -218,6 +224,8 @@ class Bill(TimestampModel):
                     tr.approve()
             return True
         return False
+
+    # def suspend(self, request_user):
 
     def commit(self):
         """
@@ -286,6 +294,16 @@ class Transaction(StatefulTransactionModel):
         """
         # push this transaction to reject state
         if self.state == PREPARE:
+            self.state = REJECTED
+            self.save()
+            return True
+        return False
+
+    def force_reject(self):
+        """
+        @pre: request_user = self.owner
+        """
+        if self.state == PREPARE or self.state == APPROVED:
             self.state = REJECTED
             self.save()
             return True

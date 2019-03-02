@@ -39,9 +39,9 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title class="grey--text">{{
-                item.text
-              }}</v-list-tile-title>
+              <v-list-tile-title class="grey--text">
+                {{ item.text }}
+              </v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </template>
@@ -113,7 +113,8 @@ export default {
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5 {
   font-weight: 300 !important;
 }
 </style>
