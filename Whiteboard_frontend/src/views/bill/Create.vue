@@ -7,31 +7,23 @@
           <v-text-field label="Title" v-model="title"></v-text-field>
         </v-flex>
         <v-flex xs12 md6 lg3 pa-1>
-          <GroupSelector v-model="group" />
+          <GroupSelector v-model="group"/>
         </v-flex>
       </v-layout>
       <v-layout row wrap>
         <v-flex grow xs12 pa-1>
-          <v-text-field
-            label="Description"
-            v-model="description"
-          ></v-text-field>
+          <v-text-field label="Description" v-model="description"/>
         </v-flex>
       </v-layout>
       <!-- select phople in the group -->
-      <MemberSelector v-if="group" :group="group" v-model="userSelected" />
+      <MemberSelector v-if="group" :group="group" v-model="userSelected"/>
       <v-layout row wrap>
         <v-flex grow xs12 md6 lg4 pa-1>
-          <v-text-field
-            label="Total"
-            v-model="total"
-            prefix="$"
-            placeholder="xx.xx"
-          />
+          <v-text-field label="Total" v-model="total" prefix="$" placeholder="xx.xx"/>
         </v-flex>
       </v-layout>
       <v-layout row wrap>
-        <v-btn color="success">Split it!</v-btn>
+        <v-btn color="success" type="submit">Split it!</v-btn>
       </v-layout>
     </form>
   </v-container>
@@ -53,17 +45,19 @@ export default {
     };
   },
   methods: {
-    submit() {
-      let portion = this.total / this.userSelected;
-      axios.post("bills/", {
+    async submit() {
+      let portion = this.total / this.userSelected.length;
+      let ret = await axios.post("bills/", {
         title: this.title,
         description: this.description,
         group: this.group.id,
         transactions: this.userSelected.map(el => ({
-          from_u: el.id,
+          from_u: el,
           amount: portion
         }))
       });
+      // success return
+      this.$router.push({ name: "billDetail", parms: { id: ret.data.id } });
     }
   },
   components: {

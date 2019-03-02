@@ -5,6 +5,16 @@
       <td class="text-xs-left">{{ props.item.description }}</td>
       <td class="text-xs-left">{{ props.item.owner.username }}</td>
       <td class="text-xs-center">{{ props.item.state | showState }}</td>
+      <td class="text-xs-right">
+        <v-btn
+          color="success"
+          flat
+          icon
+          :to="{ name: 'billDetail', params: { id: props.item.id } }"
+        >
+          <v-icon>send</v-icon>
+        </v-btn>
+      </td>
     </template>
   </v-data-table>
 </template>
@@ -38,6 +48,12 @@ export default {
           text: "State",
           align: "center",
           sortable: true,
+          value: "state"
+        },
+        {
+          text: "Action",
+          align: "right",
+          sortable: false,
           value: "state"
         }
       ]
