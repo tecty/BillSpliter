@@ -8,5 +8,10 @@ export default [
     path: "/group/create",
     name: "groupCreate",
     component: () => import("@/views/group/Create.vue")
+  },
+  {
+    path: "/group/:id",
+    name: "groupDetail",
+    component: () => import("@/views/group/Detail.vue")
   }
 ];

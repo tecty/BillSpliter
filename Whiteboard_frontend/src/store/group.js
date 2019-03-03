@@ -32,6 +32,12 @@ export default {
         return res;
       }
       return new Promise().resolve();
+    },
+    g_get_group(state, id) {
+      return axios.get(`groups/${id}`);
+    },
+    g_add_user(state, data) {
+      return axios.post(`groups/${data.gid}/add_user/`, { user: data.uid });
     }
   }
 };

@@ -1,8 +1,10 @@
 <template>
   <v-container>
-    <h1>Groups<v-btn color="success">Cretae</v-btn></h1>
+    <h1>Groups
+      <v-btn color="success" disabled>Cretae</v-btn>
+    </h1>
     <p>Search your group here</p>
-    <GroupList />
+    <GroupList/>
   </v-container>
 </template>
 <script>
