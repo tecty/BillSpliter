@@ -66,6 +66,9 @@ export default {
         dispatch("clear_out");
         Router.push("/login");
       }
+      // fetch the user detail into frontend
+      dispatch("getUserDetail");
+
       setTimeout(refreshToken, 1000);
       // return back this promise back to support chaining
       return res;
