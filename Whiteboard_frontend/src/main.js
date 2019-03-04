@@ -44,6 +44,9 @@ Vue.filter("trAmount", tr => {
   if (tr.from_u == localStorage.getItem("uid")) return `$-${tr.amount}`;
   else return `$${tr.amount}`;
 });
+Vue.filter("idToGroupName", (id, group) => {
+  return group.find(el => el.id == id).name;
+});
 
 Vue.use(Vuetify);
 new Vue({

@@ -19,13 +19,13 @@
           >
             <template slot="items" slot-scope="props">
               <router-link
-                tag="td"
+                tag="tr"
                 :to="{ name: 'billDetail', params: { id: props.item.bill } }"
               >
                 {{ props.item.title }}
-                <span class="text--secondary">{{
-                  props.item.description
-                }}</span>
+                <span class="text--secondary">
+                  {{ props.item.description }}
+                </span>
               </router-link>
               <td class="text-xs-right">
                 {{ props.item.to_u | fullnameById(group) }}
@@ -79,9 +79,9 @@
               >
                 {{ props.item.title }}
                 <br />
-                <span class="text--secondary">{{
-                  props.item.description
-                }}</span>
+                <span class="text--secondary">
+                  {{ props.item.description }}
+                </span>
               </router-link>
             </template>
             <template v-slot:footer>

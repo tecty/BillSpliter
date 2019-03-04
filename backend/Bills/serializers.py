@@ -127,6 +127,7 @@ class SettleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Settlement
         fields = (
+            'id',
             'title',
             'description',
             'owner',

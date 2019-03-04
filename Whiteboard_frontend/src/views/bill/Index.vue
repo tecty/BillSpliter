@@ -6,7 +6,7 @@
         <v-icon>add</v-icon>
       </v-btn>
     </h1>
-    <BillList :bill="curr_bill" loading />
+    <BillList :bill="curr_bill" :loading="curr_bill_loading" />
   </v-container>
 </template>
 <script>

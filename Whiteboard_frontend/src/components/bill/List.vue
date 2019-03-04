@@ -1,5 +1,10 @@
 <template>
-  <v-data-table :headers="headers" :items="bill" item-key="name">
+  <v-data-table
+    :headers="headers"
+    :items="bill"
+    item-key="name"
+    :loading="loading"
+  >
     <template slot="items" slot-scope="props">
       <router-link
         tag="tr"
@@ -17,7 +22,8 @@
 <script>
 export default {
   props: {
-    bill: Array
+    bill: Array,
+    loading: Boolean
   },
   data() {
     return {

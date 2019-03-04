@@ -1,6 +1,6 @@
 <template>
   <v-container grid-list-xs>
-    <v-progress-circular indeterminate v-if="waiting" color="primary"/>
+    <v-progress-circular indeterminate v-if="waiting" color="primary" />
     <div v-else>
       <h1>{{ name }}</h1>
       <h3>
@@ -12,7 +12,7 @@
         <li v-for="u in users" :key="u.id">{{ u | username }}</li>
       </ul>
       <v-form v-if="isOwner" @submit.prevent="addUser">
-        <v-text-field label="User ID" v-model="newUid" required/>
+        <v-text-field label="User ID" v-model="newUid" required />
         <v-btn color="success" type="submit">Add User</v-btn>
       </v-form>
     </div>

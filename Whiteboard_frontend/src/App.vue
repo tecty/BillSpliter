@@ -39,9 +39,9 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title class="grey--text">
-                {{ item.text }}
-              </v-list-tile-title>
+              <v-list-tile-title class="grey--text">{{
+                item.text
+              }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </template>
@@ -81,7 +81,7 @@ export default {
         { heading: "Billing System", text: "create", href: "billCreate" },
         { icon: "call_made", text: "Transactions", href: "transaction" },
         { icon: "merge_type", text: "Bills", href: "bill" },
-        { icon: "shuffle", text: "Settlement" },
+        { icon: "shuffle", text: "Settlement", href: "settle" },
         { divider: true },
         { icon: "settings", text: "Settings", href: "about" },
         { icon: "person", text: "User" },
