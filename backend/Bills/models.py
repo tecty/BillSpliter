@@ -186,7 +186,9 @@ class Bill(TimestampModel):
     @classmethod
     def filter_user_bills(cls, user):
         return cls.objects.filter(
-            Q(transaction__from_u=user) | Q(transaction__to_u=user)
+            Q(owner=user) |
+            Q(transaction__from_u=user) |
+            Q(transaction__to_u=user)
         ).distinct()
 
     @classmethod
@@ -483,6 +485,7 @@ class Settlement(TimestampModel):
         return Bill.objects\
             .exclude(transaction__state=COMMITED)\
             .exclude(transaction__state=FINISH)\
+            .filter(settle=self)\
             .distinct()
 
 
