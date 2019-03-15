@@ -48,6 +48,7 @@ urlpatterns = [
     url('manifest.json', generic.TemplateView.as_view(template_name='manifest.json')),
     url('service-worker.js', generic.TemplateView.as_view(template_name='index.html') ),
     url(r'^v1/', include(router.urls)),
+    url(r'^$', frontend ),
     url(r'^\w+?/' ,frontend)
 ]
 urlpatterns += staticfiles_urlpatterns()
