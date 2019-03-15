@@ -1,9 +1,8 @@
-FROM node:8 as frontend-build
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ .
-RUN npm run build
+FROM node:10 AS frontend-build
+WORKDIR /app/
+ADD frontend/ /app/
+RUN npm install 
+RUN npm run build 
 
 FROM tiangolo/meinheld-gunicorn:python3.7
 
