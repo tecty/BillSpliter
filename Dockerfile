@@ -1,8 +1,8 @@
-FROM node:10 AS frontend-build
+FROM node:8.15 AS frontend-build
 WORKDIR /app/
 ADD frontend/ /app/
-RUN npm install 
-RUN npm run build 
+RUN yarn install 
+RUN yarn build 
 
 FROM tiangolo/meinheld-gunicorn:python3.7
 
