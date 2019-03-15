@@ -26,7 +26,7 @@ Vue.filter("showState", state => {
     PR: "Prepare",
     AP: "Approved",
     RJ: "Rejected",
-    CS: "Concencus",
+    CS: "Censensus",
     CD: "Commited",
     FN: "Finish",
     SP: "Suspend"

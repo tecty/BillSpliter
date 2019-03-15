@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=AnApple123
+      - POSTGRES_USER=root
+    volumes: 
+      - BillSpliterData:/var/lib/postgresql/data
+  web:
+    build: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+volumes: 
+  BillSpliterData:
