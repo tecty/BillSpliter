@@ -1,8 +1,9 @@
-FROM node:8.15 AS frontend-build
-WORKDIR /app/
-ADD frontend/ /app/
-RUN yarn install 
-RUN yarn build 
+FROM node:lts-alpine as build-stage
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ .
+RUN npm run build
 
 FROM tiangolo/meinheld-gunicorn:python3.7
 
