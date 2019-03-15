@@ -1,4 +1,4 @@
-FROM node:lts-alpine as build-stage
+FROM node:lts-alpine as frontend-build
 WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
