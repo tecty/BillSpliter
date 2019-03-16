@@ -10,10 +10,14 @@ services:
     volumes: 
       - BillSpliterData:/var/lib/postgresql/data
   web:
-    build: .
-    ports:
-      - 80:8000
+    build: backend
+    restart: always
     depends_on:
       - db
+  nginx: 
+    build: .
+    restart: always
+    ports:
+      - 80:80
 volumes: 
   BillSpliterData:

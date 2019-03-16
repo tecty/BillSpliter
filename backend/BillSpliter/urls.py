@@ -38,17 +38,12 @@ router.register('brief_tr', BriefTransactionViewSet)
 router.register('settle_tr', SettleTransactionViewSet)
 router.register('settlement', SettlementViewSet)
 
-frontend = generic.TemplateView.as_view(template_name='index.html')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^v1/jwt/', obtain_jwt_token),
-    url('manifest.json', generic.TemplateView.as_view(template_name='manifest.json')),
-    url('service-worker.js', generic.TemplateView.as_view(template_name='index.html') ),
     url(r'^v1/', include(router.urls)),
-    url(r'^$', frontend ),
-    url(r'^\w+?/' ,frontend)
 ]
 urlpatterns += staticfiles_urlpatterns()
