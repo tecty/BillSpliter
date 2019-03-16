@@ -192,7 +192,7 @@ export default {
     },
     async refreshData() {
       let ret = await Promise.all([
-        axios.get("brief_tr"),
+        axios.get("brief_tr/"),
         axios.get("bills/balance/")
       ]);
       // assign the balances

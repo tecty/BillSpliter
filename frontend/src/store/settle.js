@@ -2,7 +2,12 @@ import axios from "axios";
 export default {
   namespaced: true,
   actions: {
-    s_get: (state, id = "") => axios.get(`settlement/${id}/`),
+    s_get: (state, id = "") => {
+      if (id != "") {
+        id = id + "/";
+      }
+      return axios.get(`settlement/${id}`);
+    },
     s_create: (state, data) => axios.post("settlement/", data),
     s_delete: (state, id) => axios.delete(`settlement/${id}/`),
     s_get_wait_bill: (state, id) => axios.get(`settlement/${id}/waiting_bill/`),
