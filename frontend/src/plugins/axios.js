@@ -5,7 +5,7 @@ import Vue from "vue";
 import axios from "axios";
 process.env.NODE_ENV == "";
 // Full config:  https://github.com/axios/axios#request-config
-axios.defaults.baseURL = "v1/";
+axios.defaults.baseURL = "/v1/";
 //   process.env.NODE_ENV === "production"
 //     ? "http://whiteboard.house/v1/"
 //     : "http://localhost:8000/v1/";

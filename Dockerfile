@@ -1,4 +1,4 @@
-FROM node:10 AS frontend-build
+FROM node:8 AS frontend-build
 WORKDIR /app/
 ADD frontend/ /app/
 RUN npm install 
