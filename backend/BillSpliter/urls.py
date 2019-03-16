@@ -26,7 +26,6 @@ from BillGroups.views import GroupViewSet
 # urls
 from rest_framework_jwt.views import obtain_jwt_token
 from django.views import generic
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 # main router
 router = routers.DefaultRouter()
@@ -46,4 +45,3 @@ urlpatterns = [
     url(r'^v1/jwt/', obtain_jwt_token),
     url(r'^v1/', include(router.urls)),
 ]
-urlpatterns += staticfiles_urlpatterns()
