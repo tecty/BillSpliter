@@ -485,7 +485,7 @@ class Settlement(TimestampModel):
         return Bill.objects\
             .exclude(transaction__state=COMMITED)\
             .exclude(transaction__state=FINISH)\
-            .filter(settle=self)\
+            .filter(settlement=self)\
             .distinct()
 
 
