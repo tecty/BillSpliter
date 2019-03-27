@@ -125,7 +125,7 @@ class BriefTransactionViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        return Transaction.filter_user(self.request.user)
+        return Transaction.filter_user(self.request.user).exclude(state=FINISH)
 
 
 class SettleTransactionViewSet(viewsets.ModelViewSet):
