@@ -58,26 +58,27 @@
         </v-layout>
       </div>
 
-      <h2>Well Accepted Transactions</h2>
+      <v-switch v-model="isSelfSpent">
+        <template v-slot:label>
+          <h3 v-if="!isSelfSpent" class="black--text">
+            Well Accepted Transactions
+          </h3>
+          <h3 v-else class="black--text">
+            Actual Spent Transactions
+          </h3>
+        </template>
+      </v-switch>
       <v-layout row wrap>
         <v-flex xs12 md10 lg8 mt-2 mb-2>
           <v-data-table
             :headers="concencusHeader"
-            :items="concencus"
+            :items="choosedList"
             item-key="name"
-            hide-actions
           >
             <template slot="items" slot-scope="props">
-              <td class="text-xs-left">
-                {{ props.item.from_u | fullnameById(group) }}
-              </td>
-              <td class="text-xs-left">
-                {{ props.item.to_u | fullnameById(group) }}
-              </td>
-              <td class="text-xs-right">{{ props.item | trAmount }}</td>
               <router-link
                 tag="td"
-                class="text-xs-right"
+                class="text-xs-left"
                 :to="{ name: 'billDetail', params: { id: props.item.bill } }"
               >
                 {{ props.item.title }}
@@ -86,12 +87,23 @@
                   {{ props.item.description }}
                 </span>
               </router-link>
+              <td class="text-xs-right">
+                {{ props.item.by_u | fullnameById(group) }}
+              </td>
+
+              <td class="text-xs-right">{{ props.item | trAmount }}</td>
             </template>
             <template v-slot:footer>
-              <td></td>
-              <td class="text-xs-left">Balance</td>
-              <td class="text-xs-right">${{ balance }}</td>
-              <td></td>
+              <tr>
+                <td></td>
+                <td class="text-xs-right">Balance</td>
+                <td class="text-xs-right">${{ balance }}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-xs-right">Actual Spent</td>
+                <td class="text-xs-right">${{ spentAmount }}</td>
+              </tr>
             </template>
           </v-data-table>
         </v-flex>
@@ -108,6 +120,7 @@ export default {
   data() {
     return {
       transactions: [],
+      isSelfSpent: false,
       waiting: true,
       balance: 0,
       headers: [
@@ -138,13 +151,14 @@ export default {
       ],
       concencusHeader: [
         {
-          text: "From",
+          text: "Bill",
           align: "left",
-          sortable: false
+          sortable: false,
+          value: "name"
         },
         {
-          text: "To",
-          align: "left",
+          text: "By User",
+          align: "right",
           sortable: false
         },
         {
@@ -152,12 +166,6 @@ export default {
           align: "right",
           sortable: true,
           value: "amount"
-        },
-        {
-          text: "Bill",
-          align: "right",
-          sortable: false,
-          value: "name"
         }
       ]
     };
@@ -181,10 +189,37 @@ export default {
       if (this.waiting) {
         return [];
       }
-
-      return this.transactions.filter(
-        el => el.state == "CS" || el.state == "CD"
-      );
+      return this.transactions
+        .map(el => {
+          if (el.from_u != this.uid) {
+            el.by_u = el.from_u;
+          } else if (el.to_u != this.uid) {
+            el.by_u = el.to_u;
+          } else {
+            el.by_u = this.uid;
+          }
+          return el;
+        })
+        .filter(el => el.state == "CS" || el.state == "CD");
+    },
+    flowList() {
+      return this.concencus.filter(el => el.by_u != this.uid);
+    },
+    selfSpent() {
+      return this.concencus.filter(el => el.from_u == this.uid);
+    },
+    choosedList() {
+      if (this.isSelfSpent) {
+        return this.selfSpent;
+      } else {
+        return this.flowList;
+      }
+    },
+    spentAmount() {
+      return -this.selfSpent
+        .map(el => parseFloat(el.amount))
+        .reduce((acc, a) => acc + a, 0.0)
+        .toFixed(2);
     }
   },
   methods: {
