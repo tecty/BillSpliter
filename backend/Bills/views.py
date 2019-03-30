@@ -46,14 +46,11 @@ class BillViewSet(viewsets.ModelViewSet):
     queryset = Bill.objects.all()
     serializer_class = BillSerializer
     permission_classes = (
-        IsOwnerOrReadOnly,
-        DelectionProtectedByState,
         IsAuthenticated,
+        IsOwnerOrReadOnly,
+        IsInGroupOrNotPermit,
+        DelectionProtectedByState,
     )
-
-    def get_queryset(self):
-        return Bill.filter_user_bills(self.request.user)\
-            .exclude(transaction__state=FINISH).distinct()
 
     def perform_create(self, serialiizer):
         bill = serialiizer.save()
