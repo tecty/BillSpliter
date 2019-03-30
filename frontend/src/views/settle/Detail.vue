@@ -24,6 +24,10 @@
         <v-flex mt-2 mb-2>
           <BillList :bill="bills" :loading="waitBill" />
         </v-flex>
+        <v-layout row wrap v-if="settle.owner.id == uid">
+          <v-btn color="info" disabled>Modify</v-btn>
+          <v-btn color="error" @click="remove">Delete</v-btn>
+        </v-layout>
       </div>
       <div v-else>
         <div v-if="isOwner">
@@ -179,6 +183,10 @@ export default {
         this.bills = ret.data;
         this.waitBill = false;
       }
+    },
+    async remove() {
+      await this.s_delete(this.settle.id);
+      this.$router.push("/");
     }
   },
   components: {

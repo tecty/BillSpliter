@@ -106,6 +106,13 @@ class BillViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=False, methods=['GET'])
+    def current(self, request, *args, **kwargs):
+        # only include the finished bills
+        self.queryset = Bill.filter_user_bills(self.request.user)\
+            .exclude(transaction__state=FINISH).distinct()
+        return self.list(request, *args, **kwargs)
+
+    @action(detail=False, methods=['GET'])
     def balance(self, request):
         return Response(
             {'balance': Transaction.get_balance(self.request.user)}

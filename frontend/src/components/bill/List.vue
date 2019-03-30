@@ -4,6 +4,7 @@
     :items="bill"
     item-key="name"
     :loading="loading"
+    :search="search"
   >
     <template slot="items" slot-scope="props">
       <router-link
@@ -23,7 +24,8 @@
 export default {
   props: {
     bill: Array,
-    loading: Boolean
+    loading: Boolean,
+    search: String
   },
   data() {
     return {
@@ -31,19 +33,21 @@ export default {
         {
           text: "Title",
           align: "left",
-          sortable: false,
-          value: "name"
+          sortable: true,
+          value: "title"
         },
 
         {
           text: "Description",
           align: "left",
-          sortable: false
+          sortable: false,
+          value: "description"
         },
         {
           text: "Owner",
           align: "right",
-          sortable: false
+          sortable: false,
+          value: "owner"
         },
         {
           text: "State",

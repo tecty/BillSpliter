@@ -3,7 +3,7 @@ import axios from "axios";
 export default {
   namespaced: true,
   actions: {
-    get_curr_bill: () => axios.get("bills/"),
+    get_curr_bill: () => axios.get("bills/current/"),
     get_base_url: (state, id, action = "") => `bills/${id}/` + action,
     b_approve(state, id) {
       return axios.get(`bills/${id}/approve/`);
