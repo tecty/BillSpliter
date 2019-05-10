@@ -43,17 +43,13 @@ let _router = new Router({
 
 // router guard for login
 _router.beforeEach((to, from, next) => {
-  if (
-    to.matched.some(
-      record => !record.meta.guest && record.meta.guest !== undefined
-    )
-  ) {
+  if (to.matched.some(record => !record.meta.guest)) {
     // this route is required auth
     if (localStorage.getItem("token")) {
       next();
     } else {
       next({
-        path: "/login",
+        name: "login",
         query: {
           redirect: to.fullPath
         }

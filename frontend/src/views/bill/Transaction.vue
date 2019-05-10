@@ -113,7 +113,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -243,8 +242,8 @@ export default {
     },
     async refreshData() {
       let ret = await Promise.all([
-        axios.get("brief_tr/"),
-        axios.get("bills/balance/")
+        window.axios.get("brief_tr/"),
+        window.axios.get("bills/balance/")
       ]);
       // assign the balances
       this.balance = ret[1].data.balance;

@@ -122,4 +122,7 @@ h4,
 h5 {
   font-weight: 300 !important;
 }
+.v-btn {
+  margin: 0;
+}
 </style>

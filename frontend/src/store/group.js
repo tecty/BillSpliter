@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export default {
   namespaced: true,
   state: {
@@ -27,17 +25,19 @@ export default {
   actions: {
     async require_grouplist({ state, commit }) {
       if (state.groupList.length == 0) {
-        const res = await axios.get("groups/");
+        const res = await window.axios.get("groups/");
         commit("SET_GROUP_LIST", res.data);
         return res;
       }
       return new Promise().resolve();
     },
     g_get_group(state, id) {
-      return axios.get(`groups/${id}`);
+      return window.axios.get(`groups/${id}`);
     },
     g_add_user(state, data) {
-      return axios.post(`groups/${data.gid}/add_user/`, { user: data.uid });
+      return window.axios.post(`groups/${data.gid}/add_user/`, {
+        user: data.uid
+      });
     }
   }
 };

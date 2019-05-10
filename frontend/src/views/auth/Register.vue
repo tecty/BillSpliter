@@ -6,52 +6,41 @@
         <h1 v-else>Edit Profile</h1>
 
         <form @submit.prevent="submit">
-          <v-snackbar v-model="snackbar">
-            {{ snackText }}
-            <v-btn flat color="error" @click.native="snackbar = false"
-              >Close</v-btn
-            >
-          </v-snackbar>
-          <v-text-field
-            v-model="username"
-            outline
-            label="Username"
-            required
-            autofocus
-            autocomplete
-          />
-          <v-text-field
-            v-model="password"
-            outline
-            :type="show ? 'text' : 'password'"
-            label="Password"
-            :append-icon="show ? 'visibility' : 'visibility_off'"
-            autocomplete
-            @click:append="show = !show"
-            required
-          />
           <v-layout row wrap>
-            <v-flex xs12 md6 pr-1>
+            <v-flex px-1 xs12>
               <v-text-field
-                outline
-                v-model="first_name"
-                label="First Name"
+                v-model="username"
+                label="Username"
+                required
+                autofocus
+                autocomplete
+              />
+            </v-flex>
+            <v-flex px-1 xs12>
+              <v-text-field
+                v-model="password"
+                :type="show ? 'text' : 'password'"
+                label="Password"
+                :append-icon="show ? 'visibility' : 'visibility_off'"
+                autocomplete
+                @click:append="show = !show"
                 required
               />
             </v-flex>
-            <v-flex xs12 md6 pl-1>
-              <v-text-field
-                outline
-                v-model="last_name"
-                label="Last Name"
-                required
-              />
+
+            <v-flex px-1 xs12 md6>
+              <v-text-field v-model="first_name" label="First Name" required />
+            </v-flex>
+            <v-flex px-1 xs12 md6>
+              <v-text-field v-model="last_name" label="Last Name" required />
+            </v-flex>
+            <v-flex px-1 xs12 md6>
+              <v-btn type="submit" color="success" v-if="!isEdit"
+                >Register</v-btn
+              >
+              <v-btn type="submit" color="success" v-else>Save</v-btn>
             </v-flex>
           </v-layout>
-          <v-btn type="submit" outline color="blue" round v-if="!isEdit"
-            >Register</v-btn
-          >
-          <v-btn type="submit" color="success" v-else>Save</v-btn>
         </form>
       </v-flex>
     </v-layout>
