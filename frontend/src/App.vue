@@ -51,10 +51,15 @@
       <v-toolbar-side-icon
         @click.native="drawer = !drawer"
       ></v-toolbar-side-icon>
-      <v-toolbar-title to="{name:'home'}">Whiteboard</v-toolbar-title>
+      <router-link
+        :to="{ name: 'home' }"
+        style="text-decoration: none; color:#000"
+      >
+        <v-toolbar-title>Whiteboard</v-toolbar-title>
+      </router-link>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <v-btn v-if="!username" to="login" flat>Login</v-btn>
+        <v-btn v-if="!username" :to="{ name: 'login' }" flat>Login</v-btn>
         <userAction v-else />
         <v-btn v-if="username" @click="logout" flat>Logout</v-btn>
       </v-toolbar-items>

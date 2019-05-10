@@ -14,6 +14,7 @@
           </v-snackbar>
           <v-text-field
             v-model="username"
+            outline
             label="Username"
             required
             autofocus
@@ -21,6 +22,7 @@
           />
           <v-text-field
             v-model="password"
+            outline
             :type="show ? 'text' : 'password'"
             label="Password"
             :append-icon="show ? 'visibility' : 'visibility_off'"
@@ -29,15 +31,27 @@
             required
           />
           <v-layout row wrap>
-            <v-flex xs12 md6>
-              <v-text-field v-model="first_name" label="First Name" required />
+            <v-flex xs12 md6 pr-1>
+              <v-text-field
+                outline
+                v-model="first_name"
+                label="First Name"
+                required
+              />
             </v-flex>
-            <v-flex xs12 md6>
-              <v-text-field v-model="last_name" label="Last Name" required />
+            <v-flex xs12 md6 pl-1>
+              <v-text-field
+                outline
+                v-model="last_name"
+                label="Last Name"
+                required
+              />
             </v-flex>
           </v-layout>
-          <v-btn type="submit" v-if="!isEdit">Register</v-btn>
-          <v-btn type="submit" v-else>Save</v-btn>
+          <v-btn type="submit" outline color="blue" round v-if="!isEdit"
+            >Register</v-btn
+          >
+          <v-btn type="submit" color="success" v-else>Save</v-btn>
         </form>
       </v-flex>
     </v-layout>
@@ -45,7 +59,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions } from "vuex";
 // import postCard from "@/components/helper/addressInput";
 export default {
   data() {
@@ -55,11 +69,12 @@ export default {
       password: "",
       first_name: "",
       last_name: "",
-      show: false
+      show: false,
+      snackbar: false,
+      snackText: ""
     };
   },
   computed: {
-    ...mapState(["api_state"]),
     isEdit() {
       // if the name is profile Edit, then this is an edit page
       return this.$route.name == "ProfileEdit";
@@ -100,7 +115,7 @@ export default {
             this.$router.push(this.$route.query.redirect);
           } else {
             // go to previous page, if it's user direct to login
-            this.$router.go(-2);
+            this.$router.push("/");
           }
         });
       }
@@ -109,9 +124,7 @@ export default {
           this.snackText = err.response.data.username[0];
         }
         this.snackbar = true;
-        this.snackbarColor = "error";
         this.error = err.response.data;
-        this.$store.commit("API_READY");
       });
     }
   },
@@ -123,12 +136,7 @@ export default {
         this.location = res.data.location;
         this.tel = res.data.tel;
         this.id = res.data.id;
-        // and let this page could be render
-        this.$store.commit("API_READY");
       });
-    } else {
-      // and let this page could be render
-      this.$store.commit("API_READY");
     }
   },
   components: {}

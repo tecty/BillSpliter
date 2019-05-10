@@ -24,8 +24,14 @@ from Bills.views import UserViewSet,\
     SettlementViewSet
 from BillGroups.views import GroupViewSet
 # urls
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from django.views import generic
+# jwt route 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+
 
 # main router
 router = routers.DefaultRouter()
@@ -41,7 +47,7 @@ router.register('settlement', SettlementViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
-    url(r'^v1/jwt/', obtain_jwt_token),
-    url(r'^v1/jwt_refres/', refresh_jwt_token),
-    url(r'^v1/', include(router.urls)),
+    url(r'^v0/', include(router.urls)),
+    url(r'^v0/jwt/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^v0/jwt_refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
 ]

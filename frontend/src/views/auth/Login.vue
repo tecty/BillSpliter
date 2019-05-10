@@ -4,6 +4,7 @@
       <h1>Login</h1>
       <v-form v-model="valid" @submit.prevent="login">
         <v-text-field
+          outline
           v-model="username"
           label="Username"
           required
@@ -12,6 +13,7 @@
         />
         <v-text-field
           v-model="password"
+          outline
           :type="show ? 'text' : 'password'"
           label="Password"
           :append-icon="show ? 'visibility' : 'visibility_off'"
@@ -26,7 +28,7 @@
           >
         </p>
         <p>{{ error }}</p>
-        <v-btn type="submit">Login</v-btn>
+        <v-btn outline color="success" round type="submit">Login</v-btn>
       </v-form>
     </v-flex>
   </v-layout>
@@ -50,7 +52,7 @@ export default {
   },
   methods: {
     // map the login action from vuex
-    ...mapActions("auth", ["loginByCredential", "getUserDetail"]),
+    ...mapActions("auth", ["loginByCredential"]),
     login() {
       // pass the user login credential
       this.loginByCredential({
@@ -64,7 +66,7 @@ export default {
             this.$router.push(this.$route.query.redirect);
           } else {
             // go to previous page, if it's user direct to login
-            this.$router.go(-1);
+            this.$router.push("/");
           }
         })
         .catch(() => {

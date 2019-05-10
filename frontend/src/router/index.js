@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import AppHome from "@/views/Home.vue";
-import { isLogin } from "@/utils/auth";
+import auth from "./auth";
 import group from "./group.js";
 import bill from "./bill.js";
 import settle from "./settle.js";
@@ -12,7 +11,7 @@ var routeLists = [
   {
     path: "/",
     name: "home",
-    component: AppHome,
+    component: () => import("@/views/Home.vue"),
     meta: {
       // key to let the view can be view from guest
       guest: true
@@ -26,52 +25,6 @@ var routeLists = [
       // key to let the view can be view from guest
       guest: true
     }
-  },
-  {
-    path: "/login",
-    name: "login",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */
-      "@/views/auth/Login.vue"),
-    meta: {
-      // key to let the view can be view from guest
-      guest: true
-    },
-    beforeEnter: (to, from, next) => {
-      // if user is currently logged in, prevent him from hitting this page.
-      if (isLogin()) {
-        next("/");
-      } else {
-        // go to next
-        next();
-      }
-    }
-  },
-  {
-    path: "/register",
-    name: "register",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */
-      "@/views/auth/Register.vue"),
-    meta: {
-      // key to let the view can be view from guest
-      guest: true
-    },
-    beforeEnter: (to, from, next) => {
-      // if user is currently logged in, prevent him from hitting this page.
-      if (isLogin()) {
-        next("/");
-      } else {
-        // go to next
-        next();
-      }
-    }
   }
 ];
 
@@ -79,11 +32,37 @@ var routeLists = [
 routeLists.push(...group);
 routeLists.push(...bill);
 routeLists.push(...settle);
-// routeLists.push(...post);
-// routeLists.push(...profile);
+routeLists.push(...auth);
 
-export default new Router({
+// vue route instance
+let _router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: routeLists
 });
+
+// router guard for login
+_router.beforeEach((to, from, next) => {
+  if (
+    to.matched.some(
+      record => !record.meta.guest && record.meta.guest !== undefined
+    )
+  ) {
+    // this route is required auth
+    if (localStorage.getItem("token")) {
+      next();
+    } else {
+      next({
+        path: "/login",
+        query: {
+          redirect: to.fullPath
+        }
+      });
+    }
+  } else {
+    // this page is not login required
+    next();
+  }
+});
+
+export default _router;
