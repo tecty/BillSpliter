@@ -16,6 +16,7 @@
       <v-layout row wrap>
         <v-flex grow xs12 md6 lg4 pa-1>
           <v-text-field
+            type="number"
             label="Total"
             v-model="total"
             prefix="$"

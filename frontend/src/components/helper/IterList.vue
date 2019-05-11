@@ -1,33 +1,45 @@
 <template>
-  <v-list class="grey lighten-4">
-    <template v-for="(item, i) in items">
-      <v-layout row v-if="item.heading" align-center :key="i">
-        <v-flex xs6>
-          <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
-        </v-flex>
-        <v-flex xs6 class="text-xs-right" v-if="item.text">
-          <v-btn
-            small
-            flat
-            :to="item.href ? { name: item.href } : null"
-            class="grey--text  text--darken-1"
-            >{{ item.text }}</v-btn
-          >
-        </v-flex>
-      </v-layout>
-      <v-divider
-        dark
-        v-else-if="item.divider"
-        class="my-3"
-        :key="i"
-      ></v-divider>
-      <v-list-tile :key="i" v-else :to="item.href ? { name: item.href } : null">
+  <v-list class="grey lighten-4 grey--text  text--darken-1">
+    <template v-for="item in items">
+      <v-list-group
+        v-if="item.items"
+        :key="item.title"
+        v-model="item.active"
+        :prepend-icon="item.icon"
+        no-action
+      >
+        <template v-slot:activator @click.prevent="menu = true">
+          <v-list-tile>
+            <v-list-tile-content>
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </template>
+
+        <v-list-tile
+          v-for="subItem in item.items"
+          :to="subItem.href ? { name: subItem.href } : null"
+          :key="subItem.title"
+        >
+          <v-list-tile-content>
+            <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-icon>{{ subItem.icon }}</v-icon>
+          </v-list-tile-action>
+        </v-list-tile>
+      </v-list-group>
+      <v-list-tile
+        :key="item.action"
+        v-else
+        :to="item.href ? { name: item.href } : null"
+      >
         <v-list-tile-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-tile-action>
         <v-list-tile-content>
           <v-list-tile-title class="grey--text  text--darken-1">{{
-            item.text
+            item.title
           }}</v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
@@ -38,7 +50,8 @@
 <script>
 export default {
   props: {
-    items: Array
+    items: Array,
+    menu: Boolean
   }
 };
 </script>
