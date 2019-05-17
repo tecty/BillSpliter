@@ -1,7 +1,7 @@
 <template>
-  <v-menu offset-y v-model="menu">
+  <v-menu offset-y>
     <v-btn flat v-if="username" slot="activator">{{ username }}</v-btn>
-    <iterList :items="items" v-model="menu" />
+    <iterList :items="items" />
   </v-menu>
 </template>
 
@@ -11,8 +11,7 @@ import iterList from "@/components/helper/IterList";
 
 export default {
   data: () => ({
-    actions: [],
-    menu: false
+    actions: []
   }),
   computed: {
     ...mapState({
@@ -20,13 +19,13 @@ export default {
       username: state => state.auth.username
     }),
     get_language_item() {
-      return { icon: "", title: "English" };
-      // return { icon: "", title: "Chinese" };
+      // return { icon: "translate", title: "English" };
+      return { icon: "translate", title: "中文" };
     },
     items() {
       return [
-        { icon: "group", title: "Group", href: "group" },
-        { icon: "person", title: "Profile", href: "profile" },
+        { group_choice: true },
+        { icon: "person", title: "User Profile", href: "profile" },
         this.get_language_item,
         { icon: "shuffle", title: "Logout", href: "logout" }
       ];

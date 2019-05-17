@@ -30,6 +30,7 @@
     <v-content>
       <router-view />
     </v-content>
+    <ButtonGroupChoice />
   </v-app>
 </template>
 
@@ -37,11 +38,13 @@
 import { mapState, mapActions } from "vuex";
 import userAction from "@/components/auth/userAction";
 import iterList from "@/components/helper/IterList";
+import ButtonGroupChoice from "@/components/helper/ButtonGroupChoice";
 export default {
   name: "App",
   components: {
     userAction,
-    iterList
+    iterList,
+    ButtonGroupChoice
   },
   data() {
     return {
