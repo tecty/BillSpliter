@@ -38,13 +38,12 @@
 import { mapState, mapActions } from "vuex";
 import userAction from "@/components/auth/userAction";
 import iterList from "@/components/helper/IterList";
-import ButtonGroupChoice from "@/components/helper/ButtonGroupChoice";
+
 export default {
   name: "App",
   components: {
     userAction,
-    iterList,
-    ButtonGroupChoice
+    iterList
   },
   data() {
     return {
@@ -68,6 +67,7 @@ export default {
             { icon: "group", title: "Group", href: "group" }
           ]
         },
+        { group_choice: true },
         { icon: "settings", title: "Settings", href: "about" },
         { icon: "help", title: "Help" },
         { icon: "phonelink", title: "App downloads" },
