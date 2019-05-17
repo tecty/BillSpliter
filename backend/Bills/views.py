@@ -52,12 +52,32 @@ class BillViewSet(viewsets.ModelViewSet):
         DelectionProtectedByState,
     )
 
+    def validate_trs(self, trs):
+        # each from_u can be seen only once 
+        seen = set()
+        for tr in trs:
+            if tr.from_u in seen:
+                # this tr list is invalidate 
+                raise serializers.ValidationError(
+                        {
+                            'transactions':
+                            "User %d has seen at least twice " %
+                             tr.from_u
+                        }
+                    )
+            seen.add(tr.from_u)
+
+
     def perform_create(self, serialiizer):
         bill = serialiizer.save()
+        # pre_fetch the user_set to reduce db call 
+        u_set =bill.group.user_set.all()
+
         try:
+            tr_list = []
             for tr in self.request.data['transactions']:
                 # perform the from user validation checking
-                if User.objects.get(pk=tr['from_u']) not in bill.group.user_set.all():
+                if User.objects.get(pk=tr['from_u']) not in u_set:
                     raise serializers.ValidationError(
                         "User %d is not in the group", tr['from_u']
                     )
@@ -68,12 +88,23 @@ class BillViewSet(viewsets.ModelViewSet):
                 # use transaction serializer to perform this creation
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
-                tr = tr_s.save()
-                # if tr is self paid, approve it
-                if tr.to_u == tr.from_u:
-                    tr.approve()
-                # wrap the transaction creation
-                bill.transaction_set.add(tr)
+
+                tr_list.append(tr_s)
+                
+                # # if tr is self paid, approve it
+                # if tr.to_u == tr.from_u:
+                #     tr.approve()
+                # # wrap the transaction creation
+                # bill.transaction_set.add(tr)
+
+            # bulk create to increase the performance 
+            Transaction.objects.bulk_create(tr_list)
+
+            # @pre: to_u == request_user
+            # this is not affect the balance, so we can approve it 
+            # without any permission 
+            [t.approve() for t in tr_list if tr.to_u == tr.from_u]
+
         except serializers.ValidationError as e:
             raise e
         except Exception as e:
