@@ -1,12 +1,12 @@
 <template>
   <v-menu offset-y>
-    <v-btn flat v-if="username" slot="activator">{{ username }}</v-btn>
+    <v-btn flat v-if="name" slot="activator">{{ name }}</v-btn>
     <iterList :items="items" />
   </v-menu>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters } from "vuex";
 import iterList from "@/components/helper/IterList";
 
 export default {
@@ -14,10 +14,7 @@ export default {
     actions: []
   }),
   computed: {
-    ...mapState({
-      fullname: state => `${state.auth.first_name}  ${state.auth.last_name}`,
-      username: state => state.auth.username
-    }),
+    ...mapGetters("auth", ["name"]),
     get_language_item() {
       // return { icon: "translate", title: "English" };
       return { icon: "translate", title: "中文" };
