@@ -38,7 +38,6 @@
 <script>
 import GroupSelector from "@/components/group/Selector.vue";
 import MemberSelector from "@/components/group/MemberSelector.vue";
-import axios from "axios";
 
 export default {
   data() {
@@ -57,7 +56,7 @@ export default {
       // to elimiate the bug of creating two decimal place
       portion = portion.toFixed(2);
 
-      let ret = await axios.post("bills/", {
+      let ret = await window.axios.post("bills/", {
         title: this.title,
         description: this.description,
         group: this.group.id,

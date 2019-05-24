@@ -4,8 +4,8 @@
     <div v-else>
       <h1>
         Transactions
-        <v-btn color="success" flat @click="approve_all">
-          <v-icon>done_all</v-icon>Approve All
+        <v-btn color="success" outline @click="approve_all">
+          Approve All <v-icon>done_all</v-icon>
         </v-btn>
       </h1>
       <div v-if="ongoing.length != 0">

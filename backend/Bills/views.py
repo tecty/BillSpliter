@@ -184,7 +184,7 @@ class SettleTransactionViewSet(viewsets.ModelViewSet):
 
 
 class SettlementViewSet(viewsets.ModelViewSet):
-    queryset = Settlement.objects.all()
+    queryset = Settlement.objects.order_by('-id')
     serializer_class = SettleSerializer
     permission_classes = (
         IsOwnerOrReadOnly,

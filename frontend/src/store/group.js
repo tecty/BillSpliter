@@ -37,7 +37,7 @@ export default {
       return new Promise().resolve();
     },
     g_get_group(state, id) {
-      return window.axios.get(`groups/${id}`);
+      return window.axios.get(`groups/${id}/`);
     },
     g_add_user(state, data) {
       return window.axios.post(`groups/${data.gid}/add_user/`, {
