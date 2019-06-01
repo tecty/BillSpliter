@@ -1,5 +1,8 @@
 from django.test import TestCase
 from Bills.models import *
+# for view testing 
+from rest_framework.test import APIRequestFactory,force_authenticate
+import json
 
 
 # a helper function for creating of a set of tr
@@ -28,6 +31,7 @@ def create_bill(ul, total, state=CONCENCUS):
         )
 
     return bill
+
 
 
 class UserCaseEnv(TestCase):
