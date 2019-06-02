@@ -71,13 +71,14 @@ class BillViewSet(viewsets.ModelViewSet):
     def perform_create(self, serialiizer):
         bill = serialiizer.save()
         # pre_fetch the user_set to reduce db call 
-        u_set =bill.group.user_set.all()
+        u_set =bill.group.user_set.values('id')
+        u_set = [u['id'] for u in u_set]
 
         try:
             tr_list = []
             for tr in self.request.data['transactions']:
                 # perform the from user validation checking
-                if User.objects.get(pk=tr['from_u']) not in u_set:
+                if tr['from_u'] not in u_set:
                     raise serializers.ValidationError(
                         "User %d is not in the group", tr['from_u']
                     )
@@ -88,25 +89,19 @@ class BillViewSet(viewsets.ModelViewSet):
                 # use transaction serializer to perform this creation
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
-
+                # try to use bulk create 
                 tr_list.append(tr_s)
                 
-                # # if tr is self paid, approve it
-                # if tr.to_u == tr.from_u:
-                #     tr.approve()
-                # # wrap the transaction creation
-                # bill.transaction_set.add(tr)
 
             # bulk create to increase the performance 
-            Transaction.objects.bulk_create(tr_list)
+            # Transaction.objects.bulk_create(tr_list)
+            [tr.save() for tr in tr_list]
+            
+            # The request user must approve their bill 
+            bill.approve(User.objects.get(pk = self.request.user.id))
 
-            # @pre: to_u == request_user
-            # this is not affect the balance, so we can approve it 
-            # without any permission 
-            [t.approve() for t in tr_list if tr.to_u == tr.from_u]
-
-        except serializers.ValidationError as e:
-            raise e
+        # except serializers.ValidationError as e:
+        #     raise e
         except Exception as e:
             bill.delete()
             print(e)

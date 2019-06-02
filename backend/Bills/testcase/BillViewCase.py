@@ -27,12 +27,12 @@ class BillViewCase(UserCaseEnv):
                         "amount":"1.0"
                     }
                 ]
-            }
+            },
+            format='json'
         )
         force_authenticate(req,user = self.ul[0])
 
         # finally we can get our response 
         res = self.create_view(req)
 
-        self.assertEqual(res.status_code, 200)
-
+        self.assertEqual(res.status_code, 201)

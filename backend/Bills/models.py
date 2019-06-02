@@ -202,8 +202,8 @@ class Bill(TimestampModel):
 
     def approve(self, request_uesr):
         # the transactions need to approved by request user
-
-        if self.transaction_set.get(from_u=request_uesr).approve():
+        tr = self.transaction_set.get(from_u=request_uesr)
+        if tr and tr.approve():
             self.tr_state_update(request_uesr, APPROVED)
 
     def reject(self, request_uesr):
@@ -223,6 +223,7 @@ class Bill(TimestampModel):
             for tr in self.transaction_set.all():
                 tr.resume()
                 if tr.from_u == request_user:
+                    # BUG? not yet 
                     tr.approve()
             return True
         return False
