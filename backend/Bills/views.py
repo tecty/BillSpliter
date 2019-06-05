@@ -111,7 +111,7 @@ class BillViewSet(viewsets.ModelViewSet):
                 if 'to_u' not in tr: 
                     tr['to_u'] = self.request.user.id
                 
-                # after creation checking 
+                # after auto fill checking 
                 if self.request.user.id != tr['from_u'] and \
                     self.request.user.id !=  tr['to_u']:
                     # un-support here, 
