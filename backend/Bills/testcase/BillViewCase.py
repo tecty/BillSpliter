@@ -145,4 +145,23 @@ class BillCreateViewCase(UserCaseEnv, ViewCaseMixIn):
         self.assertEqual(res.status_code, 400)
         self.check_bill_not_exist()
 
+    def test_direct_pay_success(self):
+        res = self.mk_request(
+            '/v0/bills/',
+            {
+                "title": "ss",
+                "description": "ss",
+                "group":1,
+                "transactions":[
+                    {
+                        "from_u":1, 
+                        "to_u":2, 
+                        "amount":"1.0"
+                    }
+                ]
+            },
+            self.ul[0]
+        )
+        self.assertEqual(res.status_code, 201)
+        self.check_create_bill_state(CONCENCUS)
 

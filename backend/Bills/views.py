@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated
 
+from traceback import print_exc
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -105,7 +106,21 @@ class BillViewSet(viewsets.ModelViewSet):
 
                 # filling the missing information
                 tr['bill'] = bill.id
-                tr['to_u'] = self.request.user.id
+                
+                # making up the tr information about user
+                if 'to_u' not in tr: 
+                    tr['to_u'] = self.request.user.id
+                
+                # after creation checking 
+                if self.request.user.id != tr['from_u'] and \
+                    self.request.user.id !=  tr['to_u']:
+                    # un-support here, 
+                    # you can not help others to initiate an transactions 
+                    raise serializers.ValidationError({
+                        "transactions":
+                        "You can't help others to initate transctions."
+                    })
+                    
                 # use transaction serializer to perform this creation
                 tr_s = TransactionSerializer(data=tr)
                 tr_s.is_valid(raise_exception=True)
@@ -124,6 +139,7 @@ class BillViewSet(viewsets.ModelViewSet):
             bill.delete()
             raise e
         except Exception as e:
+            print_exc(e)
             bill.delete()
             raise serializers.ValidationError({
                 'transactions': 'Error in createing transactions'
