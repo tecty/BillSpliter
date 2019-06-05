@@ -73,15 +73,35 @@ class BillViewSet(viewsets.ModelViewSet):
         # pre_fetch the user_set to reduce db call 
         u_set =bill.group.user_set.values('id')
         u_set = [u['id'] for u in u_set]
+        # seen user: who is in the transactions 
+        u_seen = set()
+
 
         try:
             tr_list = []
+            if not self.request.data['transactions'] or \
+                len(self.request.data['transactions'])  == 0:
+                raise serializers.ValidationError({
+                    'transactions': 'Empty transaction list.'
+                })
+
+
             for tr in self.request.data['transactions']:
                 # perform the from user validation checking
                 if tr['from_u'] not in u_set:
-                    raise serializers.ValidationError(
-                        "User %d is not in the group", tr['from_u']
-                    )
+                    raise serializers.ValidationError({
+                        "transactions":
+                        "User %d is not in the group"% tr['from_u']
+                    })
+
+                # from user couldn't be duplicated 
+                if tr['from_u'] in u_seen:
+                    raise serializers.ValidationError({
+                        "transactions":
+                        "User %d's tranaction is already created" 
+                        %tr['from_u']
+                    })
+                u_seen.add(tr['from_u'])
 
                 # filling the missing information
                 tr['bill'] = bill.id
@@ -100,11 +120,11 @@ class BillViewSet(viewsets.ModelViewSet):
             # The request user must approve their bill 
             bill.approve( self.request.user)
 
-        # except serializers.ValidationError as e:
-        #     raise e
+        except serializers.ValidationError as e:
+            bill.delete()
+            raise e
         except Exception as e:
             bill.delete()
-            print(e)
             raise serializers.ValidationError({
                 'transactions': 'Error in createing transactions'
             })
