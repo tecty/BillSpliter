@@ -98,7 +98,7 @@ class BillViewSet(viewsets.ModelViewSet):
             [tr.save() for tr in tr_list]
             
             # The request user must approve their bill 
-            bill.approve(User.objects.get(pk = self.request.user.id))
+            bill.approve( self.request.user)
 
         # except serializers.ValidationError as e:
         #     raise e

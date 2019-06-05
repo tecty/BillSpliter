@@ -1,3 +1,3 @@
 from .BillCase import BillCase
 from .SettleCase import SettleCase
-from .BillViewCase import BillViewCase
+from .BillViewCase import BillCreateViewCase

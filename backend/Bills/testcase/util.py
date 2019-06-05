@@ -67,3 +67,25 @@ class UserCaseEnv(TestCase):
         create_bill(self.ul, 10)
         create_bill(self.ul, 20)
         create_bill(self.ul, 30)
+
+class ViewCaseMixIn(object):
+    factory = APIRequestFactory()
+    def get_view(self):
+        raise NotImplementedError(
+            "`get_view()` must be implemented to make an request.")
+    def mk_request( self,endpoint: str, object:dict , user:User = None):
+        """
+        make a post request to the given endpoint 
+
+        @endpoint: the endpoint to the view
+        @object: the object sent to the endpoint 
+        @user: the user will be authenticated to 
+        """
+        # make an request via django 
+        req = self.factory.post(endpoint ,object, format='json')
+        # authenticate this request 
+        if user:
+            force_authenticate(req, user)
+
+        # use the view to get the result 
+        return self.get_view()(req)
