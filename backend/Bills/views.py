@@ -42,8 +42,18 @@ class TransactionViewSet(viewsets.ModelViewSet):
     )
 
 
+def tr_helper(tr, bill_id, to_u):
+    tr['bill'] = bill_id
+    if 'to_u' not in tr:
+        tr['to_u'] = to_u
+    tr = TransactionSerializer(data=tr)
+    tr.is_valid(raise_exception=True)
+    return tr
+
+
 class BillViewSet(viewsets.ModelViewSet):
-    queryset = Bill.objects.all()
+    queryset = Bill.objects.select_related('owner')\
+        .prefetch_related('transaction_set').all()
     serializer_class = BillSerializer
     permission_classes = (
         IsAuthenticated,
@@ -53,35 +63,36 @@ class BillViewSet(viewsets.ModelViewSet):
     )
 
     def perform_create(self, serialiizer):
-        bill = serialiizer.save()
         try:
-            for tr in self.request.data['transactions']:
-                # perform the from user validation checking
-                if User.objects.get(pk=tr['from_u']) not in bill.group.user_set.all():
-                    raise serializers.ValidationError(
-                        "User %d is not in the group", tr['from_u']
+            bill = serialiizer.save()
+            # optimisation
+            group = set(bill.group.user_set.values_list('id', flat=True))
+            group_filter = [int(tr['from_u'])
+                            for tr in self.request.data['transactions']
+                            if int(tr['from_u']) not in group]
+            if any(group_filter):
+                raise serializers.ValidationError(
+                    "Users %s is not in the group" % str(group_filter)
+                )
+            trs = (
+                Transaction(
+                    **(
+                        tr_helper(
+                            tr, bill.id, self.request.user.id).validated_data
                     )
+                )
+                for tr in self.request.data['transactions']
+            )
+            # list of validated data dict
+            trs = Transaction.objects.bulk_create(trs)
 
-                # filling the missing information
-                tr['bill'] = bill.id
-                tr['to_u'] = self.request.user.id
-                # use transaction serializer to perform this creation
-                tr_s = TransactionSerializer(data=tr)
-                tr_s.is_valid(raise_exception=True)
-                tr = tr_s.save()
-                # if tr is self paid, approve it
-                if tr.to_u == tr.from_u:
-                    tr.approve()
-                # wrap the transaction creation
-                bill.transaction_set.add(tr)
+            [tr.approve() for tr in trs if tr.to_u == tr.from_u]
         except serializers.ValidationError as e:
             raise e
         except Exception as e:
             bill.delete()
             print(e)
-            raise serializers.ValidationError({
-                'transactions': 'Error in createing transactions'
-            })
+            raise e
 
     @action(detail=True, methods=['GET'], name='Approve')
     def approve(self, request, pk=None):
@@ -109,7 +120,9 @@ class BillViewSet(viewsets.ModelViewSet):
     def current(self, request, *args, **kwargs):
         # only include the finished bills
         self.queryset = Bill.filter_user_bills(self.request.user)\
-            .exclude(transaction__state=FINISH).distinct()
+            .exclude(transaction__state=FINISH).distinct()\
+            .select_related('owner')\
+            .prefetch_related('transaction_set')
         return self.list(request, *args, **kwargs)
 
     @action(detail=False, methods=['GET'])

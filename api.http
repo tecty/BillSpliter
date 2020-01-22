@@ -1,8 +1,5 @@
-@baseUrl = http://localhost:8000/v1/
-@auth = JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InR0dCIsImV4cCI6MTU1MjI0MDMzNywiZW1haWwiOiIifQ.WH_EyBaqEUSZ5dc30zLXaMFqFoD2Tf9rvR6U03Xfe0o
-
-
-
+@baseUrl = http://localhost:8000/v0/
+@auth = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTc5NTk5NDAxLCJqdGkiOiI4ZDg0NWM4NWU4YTM0ZDEwYjFkMDU0NGFjYmI2YzM0MiIsInVzZXJfaWQiOjh9.wZS5jxNlr4cyBJXetatscUswLyk5dnt_dpTMWPXc1-4
 
 POST {{baseUrl}}jwt/ HTTP/1.1
 Content-Type: application/json
@@ -12,6 +9,11 @@ Content-Type: application/json
 	"password": "apple123"
 }
 
+###
+# get curr user info 
+GET {{baseUrl}}users/ HTTP/1.1
+Content-Type: application/json
+Authorization: {{auth}}
 
 ###
 
@@ -20,12 +22,19 @@ POST {{baseUrl}}users/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "ttt",
+    "username": "ttt4",
     "password": "apple123",
     "first_name": "Toby",
     "last_name": "HUANG"
 }
 
+
+###
+# groups detail 
+
+GET {{baseUrl}}groups/ HTTP/1.1
+Content-Type: application/json
+Authorization: {{auth}}
 
 ###
 # group creation
@@ -35,18 +44,18 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "name":"Tecty House"
+    "name":"Test Group"
 }
 
 ###
 # group add user and delete user 
 
-POST {{baseUrl}}groups/1/add_user/ HTTP/1.1
+POST {{baseUrl}}groups/2/add_user/ HTTP/1.1
 Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "user":1
+    "user":13
 }
 
 ###
@@ -59,7 +68,18 @@ Authorization: {{auth}}
     "user":1
 }
 
+###
+# get all bills (not suggested too slow)
+GET {{baseUrl}}bills/
+Content-Type: application/json
+Authorization: {{auth}}
 
+
+###
+# get current bills 
+GET {{baseUrl}}bills/current/
+Content-Type: application/json
+Authorization: {{auth}}
 
 ###
 # bill creation
@@ -73,17 +93,17 @@ Authorization: {{auth}}
     "group":2,
     "transactions":[
         {
-            "from_u":1, 
+            "from_u":8, 
             "amount":"1.0"
         },
         {
-            "from_u":2, 
+            "from_u":16, 
             "amount":"1.0"
         }
     ]
 }
-###
 
+###
 DELETE  {{baseUrl}}bills/14 HTTP/1.1
 Content-Type: application/json
 Authorization: {{auth}}
