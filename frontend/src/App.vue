@@ -8,99 +8,80 @@
       app
       v-model="drawer"
     >
-      <v-list dense class="grey lighten-4">
-        <template v-for="(item, i) in items">
-          <v-layout row v-if="item.heading" align-center :key="i">
-            <v-flex xs6>
-              <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
-            </v-flex>
-            <v-flex xs6 class="text-xs-right" v-if="item.text">
-              <v-btn
-                small
-                flat
-                :to="item.href ? { name: item.href } : null"
-                class="grey--text"
-                >{{ item.text }}</v-btn
-              >
-            </v-flex>
-          </v-layout>
-          <v-divider
-            dark
-            v-else-if="item.divider"
-            class="my-3"
-            :key="i"
-          ></v-divider>
-          <v-list-tile
-            :key="i"
-            v-else
-            :to="item.href ? { name: item.href } : null"
-          >
-            <v-list-tile-action>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title class="grey--text">{{
-                item.text
-              }}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </template>
-      </v-list>
+      <iterList :items="items" />
     </v-navigation-drawer>
-    <v-toolbar color="light-blue darken-2" app clipped-left tabs>
+    <v-toolbar color="blue" dark fixed app clipped-left :flat="is_flat">
       <v-toolbar-side-icon
         @click.native="drawer = !drawer"
       ></v-toolbar-side-icon>
       <router-link
         :to="{ name: 'home' }"
-        style="text-decoration: none; color:#000"
+        style="text-decoration: none; color:#FFF"
       >
         <v-toolbar-title>Whiteboard</v-toolbar-title>
       </router-link>
       <v-spacer></v-spacer>
+
       <v-toolbar-items>
-        <v-btn v-if="!username" :to="{ name: 'login' }" flat>Login</v-btn>
+        <v-btn v-if="!username" flat :to="{ name: 'login' }">Login</v-btn>
         <userAction v-else />
-        <v-btn v-if="username" @click="logout" flat>Logout</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <router-view />
     </v-content>
+    <ButtonGroupChoice />
   </v-app>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 import userAction from "@/components/auth/userAction";
+import iterList from "@/components/helper/IterList";
+
 export default {
   name: "App",
   components: {
-    userAction
+    userAction,
+    iterList
   },
   data() {
     return {
       drawer: false,
       items: [
-        // { icon: "touch_app", text: "Reminders", href: "about" },
-        { heading: "Billing System", text: "create", href: "billCreate" },
-        { icon: "call_made", text: "Transactions", href: "transaction" },
-        { icon: "merge_type", text: "Bills", href: "bill" },
-        { icon: "shuffle", text: "Settlement", href: "settle" },
-        { divider: true },
-        { icon: "settings", text: "Settings", href: "about" },
-        { icon: "person", text: "User" },
-        { icon: "group", text: "Group", href: "group" },
-        { icon: "help", text: "Help" },
-        { icon: "phonelink", text: "App downloads" },
-        { icon: "keyboard", text: "Keyboard shortcuts" }
+        {
+          icon: "library_books",
+          title: "Billing",
+          href: "billCreate",
+          items: [
+            { icon: "call_made", title: "Transactions", href: "transaction" },
+            { icon: "merge_type", title: "Bills", href: "bill" },
+            { icon: "shuffle", title: "Settlement", href: "settle" }
+          ]
+        },
+        {
+          icon: "domain",
+          title: "Users",
+          items: [
+            { icon: "person", title: "User Profile", href: "profile" },
+            { icon: "group", title: "Group", href: "group" }
+          ]
+        },
+        { group_choice: true },
+        { icon: "settings", title: "Settings", href: "about" },
+        { icon: "help", title: "Help" },
+        { icon: "phonelink", title: "App downloads" },
+        { icon: "keyboard", title: "Keyboard shortcuts" }
       ]
     };
   },
   computed: {
     ...mapState({
       username: state => state.auth.username
-    })
+    }),
+    is_flat() {
+      return this.$route.name == "home";
+    }
   },
   methods: {
     ...mapActions({

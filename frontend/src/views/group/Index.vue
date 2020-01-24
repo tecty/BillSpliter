@@ -2,7 +2,9 @@
   <v-container>
     <h1>
       Groups
-      <v-btn color="success" disabled>Cretae</v-btn>
+      <v-btn color="success" :to="{ name: 'groupCreate' }" outline
+        >Cretae</v-btn
+      >
     </h1>
     <p>Search your group here</p>
     <GroupList />

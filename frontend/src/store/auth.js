@@ -84,5 +84,12 @@ export default {
       commit("ADD_USER", ret.data);
       return ret;
     }
+  },
+  getters: {
+    name: state => {
+      if (state.first_name && state.last_name)
+        return state.first_name + " " + state.last_name;
+      else return state.username;
+    }
   }
 };

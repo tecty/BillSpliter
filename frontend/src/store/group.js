@@ -1,6 +1,9 @@
 export default {
   namespaced: true,
   state: {
+    // for the buttom choice of group
+    group_choice: false,
+    curr_group: undefined,
     groupList: []
   },
   mutations: {
@@ -20,6 +23,8 @@ export default {
       });
       state.groupList = group_list;
     },
+    SET_CURR_GROUP: (state, id) => (state.curr_group = id),
+    TOGGLE_CHOICE_LIST: state => (state.group_choice = !state.group_choice),
     RESET: state => (state.groupList = [])
   },
   actions: {
@@ -32,7 +37,7 @@ export default {
       return new Promise().resolve();
     },
     g_get_group(state, id) {
-      return window.axios.get(`groups/${id}`);
+      return window.axios.get(`groups/${id}/`);
     },
     g_add_user(state, data) {
       return window.axios.post(`groups/${data.gid}/add_user/`, {

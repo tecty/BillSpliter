@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Create Bill</h1>
+    <h1>Create Settlement</h1>
     <form @submit.prevent="submit">
       <v-layout row wrap>
         <v-flex xs12 md7 lg7 pa-1>

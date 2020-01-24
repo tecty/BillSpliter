@@ -4,6 +4,7 @@ import auth from "./auth";
 import group from "./group.js";
 import bill from "./bill.js";
 import settle from "./settle.js";
+import profile from "./profile.js";
 Vue.use(Router);
 
 // main route list
@@ -33,6 +34,7 @@ routeLists.push(...group);
 routeLists.push(...bill);
 routeLists.push(...settle);
 routeLists.push(...auth);
+routeLists.push(...profile);
 
 // vue route instance
 let _router = new Router({

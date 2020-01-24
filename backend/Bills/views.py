@@ -9,6 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated
 
+from traceback import print_exc
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -62,9 +64,36 @@ class BillViewSet(viewsets.ModelViewSet):
         DelectionProtectedByState,
     )
 
+    def validate_trs(self, trs):
+        # each from_u can be seen only once
+        seen = set()
+        for tr in trs:
+            if tr.from_u in seen:
+                # this tr list is invalidate
+                raise serializers.ValidationError(
+                    {
+                        'transactions':
+                            "User %d has seen at least twice " %
+                            tr.from_u
+                    }
+                )
+            seen.add(tr.from_u)
+
     def perform_create(self, serialiizer):
+        if not self.request.data['transactions'] or \
+                len(self.request.data['transactions']) == 0:
+            raise serializers.ValidationError({
+                'transactions': 'Empty transaction list.'
+            })
+        if len(set(t['from_u'] for t in self.request.data['transactions'])) != \
+                len(self.request.data['transactions']):
+            raise serializers.ValidationError({
+                'transactions': 'Duplicated transaction is not allowed.'
+            })
+
         try:
             bill = serialiizer.save()
+
             # optimisation
             group = set(bill.group.user_set.values_list('id', flat=True))
             group_filter = [int(tr['from_u'])
@@ -85,11 +114,12 @@ class BillViewSet(viewsets.ModelViewSet):
             )
             # list of validated data dict
             trs = Transaction.objects.bulk_create(trs)
-
-            [tr.approve() for tr in trs if tr.to_u == tr.from_u]
+            bill.approve(self.request.user)
         except serializers.ValidationError as e:
+            bill.delete()
             raise e
         except Exception as e:
+            print_exc(e)
             bill.delete()
             print(e)
             raise e
@@ -166,7 +196,7 @@ class SettleTransactionViewSet(viewsets.ModelViewSet):
 
 
 class SettlementViewSet(viewsets.ModelViewSet):
-    queryset = Settlement.objects.all()
+    queryset = Settlement.objects.order_by('-id')
     serializer_class = SettleSerializer
     permission_classes = (
         IsOwnerOrReadOnly,

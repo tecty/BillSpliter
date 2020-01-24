@@ -41,9 +41,11 @@ function createTokenRefreshIntercept() {
       return response;
     },
     error => {
+      // window.console.log(localStorage.getItem("token"));
+
       // Do something with response error
       // console.log(error.status);
-      if (error.response.status !== 403) {
+      if (error.response.status !== 401) {
         return Promise.reject(error);
       }
       // console.log("try to solve the expire");
@@ -56,8 +58,8 @@ function createTokenRefreshIntercept() {
           refresh: localStorage.getItem("refresh")
         })
         .then(response => {
-          // console.log(localStorage.getItem('token'))
-          // console.log(response.data.access)
+          // window.console.log(response.data.access);
+
           localStorage.setItem("token", response.data.access);
           // set the axios to the new item
           error.response.config.headers["Authorization"] =
