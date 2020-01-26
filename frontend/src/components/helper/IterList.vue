@@ -42,9 +42,7 @@
             </v-list-tile-content>
           </v-list-tile>
         </template>
-        <v-list-tile
-          v-for="g in groupList" :key="g.id"
-        >
+        <v-list-tile v-for="g in groupList" :key="g.id">
           <v-list-tile-content>
             <v-list-tile-title>{{ g.name }}</v-list-tile-title>
           </v-list-tile-content>

@@ -1,7 +1,7 @@
-FROM node:8 AS frontend-build
+FROM node:12-alpine AS frontend-build
 WORKDIR /app/
 ADD frontend/ /app/
-RUN npm install 
+RUN npm --registry https://registry.npm.taobao.org install 
 RUN npm run build 
 
 # production stage
