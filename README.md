@@ -19,7 +19,7 @@ This site is an implementation of the [two-phase commit](https://da.wikipedia.or
 ## FAQ
 
 ### Why my balance doesn't increase after I created a bill?
-> First, your bill won't go anyware and recorded into the system. Your balance will only be affected by the bill that all users agreed. 
+> First, your bill won't go anywhere and recorded into the system. Your balance will only be affected by the bill that all users agreed. 
 
 ### When should I reject a bill?
 > When the bill is not related to you or the charges are more than the reality.
