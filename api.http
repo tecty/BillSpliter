@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8000/v0/
-@auth = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTc5NTk5NDAxLCJqdGkiOiI4ZDg0NWM4NWU4YTM0ZDEwYjFkMDU0NGFjYmI2YzM0MiIsInVzZXJfaWQiOjh9.wZS5jxNlr4cyBJXetatscUswLyk5dnt_dpTMWPXc1-4
+@auth = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTg4Njc2NzU0LCJqdGkiOiI4Njg1OWM2NmJlM2I0MGIyOThjM2VjMDRhYjcyNzQ1MiIsInVzZXJfaWQiOjN9.tJfw5ZEDR6CkQoK73WMu6sJWpyxMiGXKXdVDhorfHos
 
 POST {{baseUrl}}jwt/ HTTP/1.1
 Content-Type: application/json
@@ -22,7 +22,7 @@ POST {{baseUrl}}users/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "ttt4",
+    "username": "ttt",
     "password": "apple123",
     "first_name": "Toby",
     "last_name": "HUANG"
@@ -44,7 +44,7 @@ Content-Type: application/json
 Authorization: {{auth}}
 
 {
-    "name":"Test Group"
+    "name":"Test Group1"
 }
 
 ###

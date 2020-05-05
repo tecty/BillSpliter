@@ -1,12 +1,22 @@
-from .models import BillGroup
+from .models import BillGroup, GroupMember
 from rest_framework import serializers
 from Bills.serializers import UserSerializer
 
 # TODO: Redo the groupserializer 
-class GroupSerializer(serializers.ModelSerializer):
-    users = UserSerializer(
-        source='user_set', many=True, read_only=True
+class MemberSerializer(serializers.ModelSerializer):
+    user = UserSerializer(
+        read_only=True
     )
+    class Meta: 
+        model = GroupMember
+        fields = (
+            'id', 
+            'user',
+            'status'
+        )
+
+class GroupSerializer(serializers.ModelSerializer):
+    members = MemberSerializer(source = 'groupmember_set',many = True, read_only=True)
 
     owner = UserSerializer(
         # source='owner',
@@ -18,6 +28,6 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "owner",
-            "users",
+            "members",
             "name"
         )
