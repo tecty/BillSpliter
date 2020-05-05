@@ -18,7 +18,7 @@ def create_bill(ul, total, state=CONCENCUS):
         title="dinner",
         description="nothing",
         owner=ul[0],
-        group=BillGroups.get_bill_group(ul[0]).first()
+        group=BillGroup.get_bill_group(ul[0]).first()
     )
 
     for u in ul:
@@ -32,7 +32,10 @@ def create_bill(ul, total, state=CONCENCUS):
 
     return bill
 
-
+def fillGroup(g:BillGroup, *users):
+    for u in users: 
+        g.invite(g.owner, u.username)
+        g.approve(u,u.username)
 
 class UserCaseEnv(TestCase):
     def setUp(self):
@@ -47,12 +50,9 @@ class UserCaseEnv(TestCase):
             'u004', "u004@example.cn", "tt")
 
         # dummy billing groups
-        self.group = BillGroups.objects.create(name="test", owner=self.user001)
-        self.group.addUser(self.user001.id)
-        self.group.addUser(self.user002.id)
-        self.group.addUser(self.user003.id)
-        self.group.addUser(self.user004.id)
-        self.user001.groups.add(self.group)
+        self.group = BillGroup.objects.create(name="test", owner=self.user001)
+        fillGroup(self.group, self.user001,self.user002,self.user003,self.user004)
+        # self.user001.groups.add(self.group)
 
         # ul for user_list
         self.ul = [

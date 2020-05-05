@@ -28,9 +28,7 @@ class IsInGroupOrNotPermit(BasePermission):
     message = 'Only user in the group can view the bill'
 
     def has_object_permission(self, request, view, obj):
-        if request.user in obj.group.user_set.all():
-            return True
-        return False
+        return obj.group.user_set.filter(user_id = request.user.id).exists()
 
 
 class IsOwnerOrReadOnly(BasePermission):

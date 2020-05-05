@@ -15,11 +15,10 @@ class GroupCase(TestCase):
         self.user004 = User.objects.create_user(
             'u004', "u004@example.cn", "tt")
 
-        self.group = BillGroups.objects.create(
+        self.group = BillGroup.objects.create(
             owner=self.user001,
             name="test"
         )
-        self.user001.groups.add(self.group)
 
         self.user_list = [
             self.user001,
@@ -28,19 +27,29 @@ class GroupCase(TestCase):
             self.user004,
         ]
 
-    def test_add_user(self):
-        self.group.addUser(self.user002.id)
+    def test_owner_invite(self):
+        self.group.invite(self.user001,self.user002)
+        self.group.approve(self.user002,self.user002)
         self.assertEqual(
-            self.user001,
-            self.group.user_set.filter(pk=self.user001.id).get()
+            self.group.isMember(self.user002), True
+        )
+
+    def test_member_invite(self):
+        self.group.invite(self.user001,self.user002)
+        self.group.approve(self.user002,self.user002)
+
+        self.group.invite(self.user002,self.user003)
+        self.group.approve(self.user003,self.user003)
+
+        self.assertEqual(
+            self.group.isMember(self.user003), True
         )
 
     def test_del_user(self):
-        self.group.addUser(self.user002.id)
-        self.group.delUser(self.user002.id)
+        self.group.invite(self.user001,self.user002)
+        self.group.approve(self.user002,self.user002)
+
+        self.group.delUser(self.user001,self.user002)
         self.assertEqual(
-            0,
-            self.group.user_set.filter(
-                pk=self.user002.id
-            ).count()
+            self.group.isMember(self.user002), False
         )

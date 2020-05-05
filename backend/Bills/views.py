@@ -97,7 +97,7 @@ class BillViewSet(viewsets.ModelViewSet):
             bill = serialiizer.save()
 
             # optimisation
-            group = set(bill.group.user_set.values_list('id', flat=True))
+            group = set(bill.group.user_set.values_list('user_id', flat=True))
             group_filter = [int(tr['from_u'])
                             for tr in self.request.data['transactions']
                             if int(tr['from_u']) not in group]

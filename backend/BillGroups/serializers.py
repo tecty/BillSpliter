@@ -1,8 +1,8 @@
-from .models import BillGroups
+from .models import BillGroup
 from rest_framework import serializers
 from Bills.serializers import UserSerializer
 
-
+# TODO: Redo the groupserializer 
 class GroupSerializer(serializers.ModelSerializer):
     users = UserSerializer(
         source='user_set', many=True, read_only=True
@@ -14,7 +14,7 @@ class GroupSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = BillGroups
+        model = BillGroup
         fields = (
             "id",
             "owner",

@@ -7,12 +7,12 @@ from .serializers import *
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    queryset = BillGroups.objects.all()
+    queryset = BillGroup.objects.all()
     serializer_class = GroupSerializer
     permission_classes = (IsOwnerOrReadOnly, IsAuthenticated)
 
     def get_queryset(self):
-        return BillGroups.objects.filter(
+        return BillGroup.objects.filter(
             user = self.request.user
         )
 

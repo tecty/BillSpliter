@@ -4,7 +4,7 @@ from django.db.models import CharField, DateTimeField,\
     Sum, Value, Q
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
-from BillGroups.models import BillGroups
+from BillGroups.models import BillGroup
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_delete
 
@@ -80,7 +80,7 @@ class Bill(TimestampModel):
     description = CharField(max_length=2048, blank=True)
     # creator of this bill
     owner = ForeignKey(User, on_delete=models.PROTECT)
-    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+    group = ForeignKey(BillGroup, on_delete=models.PROTECT)
 
     """
     Settlement will be attach to a bill
@@ -404,7 +404,7 @@ class Settlement(TimestampModel):
     title = CharField(max_length=255)
     description = CharField(max_length=2048, blank=True)
     owner = ForeignKey(User, on_delete=models.PROTECT)
-    group = ForeignKey(BillGroups, on_delete=models.PROTECT)
+    group = ForeignKey(BillGroup, on_delete=models.PROTECT)
     # counter of unfinished integer
     # first save will not trigger s_tr creation
     # after it calculate how many bills it should wait
@@ -523,8 +523,8 @@ def attach_settle_transactions(sender, instance, created, *args, **kwargs):
     if instance.wait_count == 0 and instance.settletransaction_set.count() == 0:
         # user list for this group
         # there's no need for owner transfer money to owner
-        ul = instance.group.user_set.all().exclude(
-            pk=instance.group.owner.id)
+        ul = (gm.user for gm in instance.group.user_set.exclude(
+            pk=instance.group.owner_id))
         for u in ul:
             # amount of this tr
             amount = Transaction.get_balance(u, instance)

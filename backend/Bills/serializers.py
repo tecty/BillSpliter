@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
 from .models import Transaction, Bill, SettleTransaction, Settlement
-from BillGroups.models import BillGroups
+from BillGroups.models import BillGroup
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -82,7 +82,7 @@ class BillSerializer(serializers.ModelSerializer):
     )
 
     group = serializers.PrimaryKeyRelatedField(
-        queryset=BillGroups.objects.all()
+        queryset=BillGroup.objects.all()
     )
 
     class Meta:

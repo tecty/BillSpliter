@@ -20,7 +20,7 @@ class BillViewCase(TestCase):
             'u004', "u004@example.cn", "tt")
 
         # dummy billing groups
-        self.group = BillGroups.objects.create(name="test", owner=self.user001)
+        self.group = BillGroup.objects.create(name="test", owner=self.user001)
         self.user001.groups.add(self.group)
 
         self.ul = [
