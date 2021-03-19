@@ -2,7 +2,7 @@ astroid==2.2.5
 autopep8==1.4.4
 Django==2.2.1
 django-filter==2.1.0
-djangorestframework==3.9.3
+djangorestframework==3.11.2
 djangorestframework-simplejwt==4.3.0
 dnspython==1.16.0
 eventlet==0.24.1
